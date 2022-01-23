@@ -10,7 +10,7 @@
 
 输入 `[81]int8` 的数组题目,`-1`为需要的填空,`1`-`9`为题面，输出一个包含答案的 `Sudoku`
 
-```go
+```golang
 // test case : main_test.go
 import sudoku "github.com/forfuns/sudoku-go/core"
 
@@ -52,7 +52,7 @@ func main(){
 - 困难 `LEVEL_HARD`
 - 大师 `LEVEL_EXPERT`
 
-```go
+```golang
 // test case : generator_test.go
 import generator "github.com/forfuns/sudoku-go/generator"
 
