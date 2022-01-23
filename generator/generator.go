@@ -136,7 +136,7 @@ func generate(ch chan<- sudoku.Sudoku, signal chan int, holes, basicPuzzle [81]i
 		}
 	}
 
-	// validate sudoku is good puzzle , make use twice calculate is the same answer
+	// validate sudoku is good puzzle , make sure twice calculate is the same answer
 	var vs1, vs2 sudoku.Sudoku
 	vs1 = sudoku.Sudoku{}
 	vs2 = sudoku.Sudoku{}
