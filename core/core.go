@@ -32,7 +32,7 @@ func (_sudoku *Sudoku) Init(puzzle [81]int8) error {
 	_sudoku.beginTime = time.Now()
 	_sudoku.puzzle = puzzle
 	_sudoku.answer = puzzle
-	_sudoku.nums = Shuffle([9]int{0, 1, 2, 3, 4, 5, 6, 7, 8})
+	_sudoku.nums = ShuffleNumbers()
 	rows, cells, zones := &_sudoku.rows, &_sudoku.cells, &_sudoku.zones
 
 	defer func() {
