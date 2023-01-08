@@ -9,7 +9,6 @@ func Bearing(index int) (x, y, zone int) {
 	x = index / 9
 	y = index % 9
 	zone = x/3*3 + y/3
-	// log.Printf("bearing index %v ,x %v, y %v, zone %v", index, x, y, zone)
 	return
 }
 

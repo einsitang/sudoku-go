@@ -73,7 +73,7 @@ func generateChan(rule [5]puzzleRule, enhance uint8, strict bool) <-chan sudoku.
 		simplePuzzle[i] = EMPTY
 	}
 
-	// dig hole
+	// dig hole (base hole)
 	randZones := sudoku.ShuffleNumbers()
 	countLoop := 0
 	for _, r := range rule {
@@ -205,57 +205,11 @@ func generate(ch chan<- sudoku.Sudoku, signal chan int, holes [81]int8, enhance 
 	} else {
 		_, signalIsOk := <-signal
 		if signalIsOk {
-			// if strict will not init valiSudoku to test , so need init by now
-			//if reflect.ValueOf(vailSudoku).Kind() != reflect.Ptr {
-			//	vailSudoku = sudoku.Sudoku{}
-			//	_ = vailSudoku.Init(puzzle)
-			//}
-			//if !strict {
-			//	vailSudoku = sudoku.Sudoku{}
-			//	_ = vailSudoku.Init(puzzle)
-			//}
 			ch <- vailSudoku
 			close(signal)
 			close(ch)
 		}
 	}
-
-	// validate sudoku is good puzzle , make sure twice calculate is the same answer
-	//var vs1 sudoku.Sudoku
-	//vs1 = sudoku.Sudoku{}
-	//_ = vs1.Init(puzzle)
-	//
-	//_, signalIsOk := <-signal
-	//if signalIsOk {
-	//	log.Printf("尝试挖洞次数 : %v", digHoleFailCount)
-	//	ch <- vs1
-	//	close(signal)
-	//	close(ch)
-	//}
-	//
-	//tryCount := 8
-	//done := true
-	//
-	//for i := 0; i < tryCount; i++ {
-	//	vs2 = sudoku.Sudoku{}
-	//	_ = vs2.Init(puzzle)
-	//	if !sudoEquals(&vs1, &vs2) {
-	//		done = false
-	//		break
-	//	}
-	//	vs1 = vs2
-	//}
-	//
-	//if done {
-	//	_, signalIsOk := <-signal
-	//	if signalIsOk {
-	//		ch <- vs1
-	//		close(signal)
-	//		close(ch)
-	//	}
-	//} else {
-	//	generate(ch, signal, holes, basicPuzzle)
-	//}
 }
 
 func sudokuEquals(sudoku1, sudoku2 *sudoku.Sudoku) bool {
@@ -263,7 +217,6 @@ func sudokuEquals(sudoku1, sudoku2 *sudoku.Sudoku) bool {
 	ans2 := sudoku2.Answer()
 	for i := range ans1 {
 		if ans1[i] != ans2[i] {
-			//log.Printf("false : %v %v - %v", i, ans1[i], ans2[i])
 			return false
 		}
 	}
@@ -297,7 +250,6 @@ func buildCandidateHoles(holes [81]int8) [9][]int {
 		for _, index := range indexes {
 			if holes[index] == FILL {
 				if min <= 0 {
-
 					arr = append(arr, index)
 				}
 				min--
