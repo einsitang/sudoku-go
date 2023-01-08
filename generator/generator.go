@@ -23,7 +23,7 @@ const (
 )
 
 // Generate
-// use this function to generate a sudoku quick , but not 100% signe answer sudoku ,
+// use this function to generate a sudoku quick , but not 100% one-solution sudoku ,
 // if lower level LEVEL_MEDIUM will higher success rate
 // whatever , you want quick and without care multi answer sudoku problem , use this is ok
 func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
@@ -31,7 +31,7 @@ func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
 }
 
 // StrictGenerate
-// this function will make sure generate sudoku puzzle will not have multi answer , is 100% right sudoku,
+// this function will make sure generate sudoku will one-solution answer ,
 // but it will take long time compared to Generate function
 func StrictGenerate(level int) (_sudoku sudoku.Sudoku, err error) {
 	return doGenerate(level, true)

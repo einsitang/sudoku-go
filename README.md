@@ -67,7 +67,7 @@ make random puzzle with function `generator.Generate` or `generator.StrictGenera
 
 如果生成难度低于`LEVEL_MEDIUM`,使用`Generate`函数造成的多解数独情况会降低，但依旧不保证100%唯一数独解
 
-simple generator , use this function can make puzzle quick ,  but not 100% signe answer sudoku
+simple generator , use this function can make puzzle quick ,  but not 100% one-solution sudoku
 
 if you mind sudoku with multi answer to solve , you shoud use `StrictGenerate`
 
@@ -77,7 +77,7 @@ with lower level `LEVEL_MEDIUM` that will be fine
 
 严格生成器，功能和 `Generate`一样，但严格要求生成的随机数独仅有一个解，同时会降低生成速度
 
-same function like `Generate`,but output 100% single answer puzzle and maybe take a long time
+same function like `Generate`,but output 100% one-solution and maybe take a long time
 
 #### level constant
 
