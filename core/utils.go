@@ -20,12 +20,23 @@ func BearingFromZone(zone, indexFromZone int) (x, y, index int) {
 	return
 }
 
+func IndexesFromZone(zone int) [9]int {
+	var indexes [9]int
+	i := 0
+	for y := 0; y < 3; y++ {
+		for x := 0; x < 3; x++ {
+			indexes[i] = ((y + (zone/3)*3) * 9) + (x + (zone%3)*3)
+			i++
+		}
+	}
+	return indexes
+}
+
 func Shuffle(nums [9]int) [9]int {
 	rand.Seed(time.Now().UnixNano())
-	for i := range nums {
-		n := rand.Intn(9)
-		nums[i], nums[n] = nums[n], nums[i]
-	}
+	rand.Shuffle(len(nums), func(i, j int) {
+		nums[i], nums[j] = nums[j], nums[i]
+	})
 	return nums
 }
 

@@ -1,18 +1,29 @@
-# sudoku-go [![Page Views Count](https://badges.toozhao.com/badges/01FT3Z973THHC20KF0D6MDQGWE/blue.svg)](https://badges.toozhao.com/stats/01FT3Z973THHC20KF0D6MDQGWE "Get your own page views count badge on badges.toozhao.com")
+# sudoku-go 
+ [![License](https://img.shields.io/badge/License-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Page Views Count](https://badges.toozhao.com/badges/01FT3Z973THHC20KF0D6MDQGWE/blue.svg)](https://badges.toozhao.com/stats/01FT3Z973THHC20KF0D6MDQGWE "Get your own page views count badge on badges.toozhao.com")
 
 使用 `golang` 实现的数独`计算器`和`生成器`
 
-## 使用
+opensource sudoku calculator and puzzle generator golang library
 
-`require github.com/forfuns/sudoku-go`
+## 功能 features
+- 数独解题器 - sodoku calculator  / solver
+- 题目生成器 - random puzzle generator with goroutinue , multi-core support
 
-### 计算器
+## 使用 tutorial
+
+`require github.com/einsitang/sudoku-go`
+
+### 计算器 solver
 
 输入 `[81]int8` 的数组题目,`-1`为需要的填空,`1`-`9`为题面，输出一个包含答案的 `Sudoku`
 
+input `[81]int8` array and return a `sudoku.Sudoku`structure with full answer
+
+use `-1` to mark the position mean **computation item**
+
 ```golang
 // test case : main_test.go
-import sudoku "github.com/forfuns/sudoku-go/core"
+import sudoku "github.com/einsitang/sudoku-go/core"
 
 func main(){
  puzzle := [81]int8{
@@ -29,24 +40,46 @@ func main(){
   -1, 6, -1 /* */, -1, -1, 9 /* */, -1, -1, -1,
  }
 
- _sudoku := new(sudoku.Sudoku)
- err := _sudoku.Init(puzzle)
- if err != nil {
-  fmt.Println(err)
- } else {
-  _sudoku.Debug()
-        // t.Log("sudo puzzle is : %v",_sudoku.Puzzle())
-  // t.Log("sudo answer is : %v",_sudoku.Answer())
-  fmt.Println("sudoku is done")
+  _sudoku := sudoku.Sudoku{}
+  err := _sudoku.Init(puzzle)
+  if err != nil {
+    fmt.Println(err)
+  } else {
+   _sudoku.Debug()
+    
+    // origin puzzle
+   _sudoku.Puzzle() 
+    // with answer sudoku
+   _sudoku.Answer()
  }
 }
 ```
 
-### 生成器
+### 生成器 generator
 
 可以随机生成四种不同难度的数独题目
 
-分别为
+make random puzzle with function `generator.Generate` or `generator.StrictGenerate`
+
+#### Generate
+
+用于生成数独题目，存在一定概率生成的数独存在多解(非唯一解数独),但生成速度最快
+
+如果生成难度低于`LEVEL_MEDIUM`,使用`Generate`函数造成的多解数独情况会降低，但依旧不保证100%唯一数独解
+
+simple generator , use this function can make puzzle quick ,  but not 100% signe answer sudoku
+
+if you mind sudoku with multi answer to solve , you shoud use `StrictGenerate`
+
+with lower level `LEVEL_MEDIUM` that will be fine
+
+#### StrictGenerate
+
+严格生成器，功能和 `Generate`一样，但严格要求生成的随机数独仅有一个解，同时会降低生成速度
+
+same function like `Generate`,but output 100% single answer puzzle and maybe take a long time
+
+#### level constant
 
 - 简单 `LEVEL_EASY`
 - 中等 `LEVEL_MEDIUM`
@@ -55,14 +88,26 @@ func main(){
 
 ```golang
 // test case : generator_test.go
-import generator "github.com/forfuns/sudoku-go/generator"
+import generator "github.com/einsitang/sudoku-go/generator"
 
 func main(){
-    sudoku, err := generator.Generate(generator.LEVEL_EXPERT)
- if err != nil {
-  fmt.Println(err)
- }
+  sudoku1, err1 := generator.Generate(generator.LEVEL_EXPERT)
+  // may take long time 
+  sudoku2, err2 := generator.StrictGenerate(generator.LEVEL_EXPERT)
+  if err1 != nil {
+    fmt.Println(err1)
+  }
+  if err2 != nil {
+    fmt.Println(err2)
+  }
 }
 ```
 
 ## More
+
+with any idea welcome open issue to make me know
+
+if you want same project with other language like js / dart and flutter app , here they are :
+- [einsitang/sudoku-nodejs](https://github.com/einsitang/sudoku-nodejs)
+- [einsitang/sudoku-dart](https://github.com/einsitang/sudoku-dart)
+- [einsitang/sudoku-flutter](https://github.com/einsitang/sudoku-flutter)

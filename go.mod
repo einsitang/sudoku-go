@@ -1,4 +1,4 @@
 
-module github.com/forfuns/sudoku-go
+module github.com/einsitang/sudoku-go
 
 go 1.17

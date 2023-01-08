@@ -59,10 +59,10 @@ func (_sudoku *Sudoku) Init(puzzle [81]int8) error {
 }
 
 func (_sudoku *Sudoku) Debug() {
-	log.Println("debug sudoku info")
-	log.Print("puzzle: \n", _sudoku.puzzleFormat())
-	log.Print("answer: \n", _sudoku.answerFormat())
-	log.Printf("use time : %d ms", _sudoku.endTime.Sub(_sudoku.beginTime).Milliseconds())
+	log.Println("--- debug sudoku info ---")
+	log.Print("PUZZLE : \n", _sudoku.puzzleFormat())
+	log.Print("ANSWER : \n", _sudoku.answerFormat())
+	log.Printf("solved the puzzle with total time : %d ms", _sudoku.endTime.Sub(_sudoku.beginTime).Milliseconds())
 }
 
 func internalCalculate(_sudoku *Sudoku, index int) bool {
@@ -137,10 +137,10 @@ func sudokuFormat(puzzle [81]int8) string {
 		}
 		if i%3 == 0 {
 			// two blank space
-			divide = "%s  %v"
+			divide = "%s  %2v"
 		} else {
 			// one blan space
-			divide = "%s %v"
+			divide = "%s %2v"
 		}
 		str = fmt.Sprintf(divide, str, word)
 	}

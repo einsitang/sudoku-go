@@ -1,20 +1,29 @@
 package main
 
 import (
+	"encoding/json"
+	generator "github.com/einsitang/sudoku-go/generator"
 	"runtime"
 	"testing"
-
-	generator "github.com/forfuns/sudoku-go/generator"
+	"time"
 )
 
 func TestGenerate(t *testing.T) {
 
-	t.Log(runtime.NumGoroutine())
-	sudoku, err := generator.Generate(generator.LEVEL_EXPERT)
+	t.Logf("use goroutine : %v \n", runtime.NumGoroutine())
+	beginTime := time.Now()
+	//sudoku, err := generator.Generate(generator.LEVEL_EXPERT)
+	sudoku, err := generator.StrictGenerate(generator.LEVEL_EXPERT)
 	if err != nil {
 		t.Fatal(err)
 	}
-	sudoku.Debug()
+	endTime := time.Now()
 	t.Log("generate done")
-	t.Log(runtime.NumGoroutine())
+	t.Logf("generated total time : %v ms", endTime.Sub(beginTime).Milliseconds())
+	sudoku.Debug()
+	bytes, _ := json.Marshal(sudoku.Puzzle())
+	puzzleStr := string(bytes)
+	t.Log("this is puzzle can be copy to the clipboard : ")
+	t.Logf("%v", puzzleStr)
+	t.Logf("the end goroutine : %v", runtime.NumGoroutine())
 }
