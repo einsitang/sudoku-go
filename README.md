@@ -9,9 +9,9 @@ opensource sudoku calculator and puzzle generator golang library
 - 数独解题器 - sodoku calculator  / solver
 - 题目生成器 - random puzzle generator with goroutinue , multi-core support
 
-## 使用 tutorial
+## 安装 install
 
-`require github.com/einsitang/sudoku-go`
+`go get github.com/einsitang/sudoku-go@latest`
 
 ### 计算器 solver
 
