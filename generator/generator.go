@@ -21,12 +21,21 @@ const (
 // Generate
 // this function will generate sudoku with one-solution
 func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
+	// concurrent generate
+	// if level below medium , just use one concurrent that will work fine
+	n := runtime.NumCPU()
+	if n < 4 {
+		n = 4
+	}
+
 	digHoleTotal := 40
 	switch level {
 	case LEVEL_EASY:
 		digHoleTotal = 40
+		n = 1
 	case LEVEL_MEDIUM:
 		digHoleTotal = 45
+		n = 1
 	case LEVEL_HARD:
 		digHoleTotal = 54
 	case LEVEL_EXPERT:
@@ -35,21 +44,17 @@ func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
 		err = errors.New("unknown level , make sure range by [0,3]")
 		return
 	}
-	return doGenerate(digHoleTotal)
+
+	return doGenerate(digHoleTotal, n)
 }
 
-func doGenerate(digHoleTotal int) (_sudoku sudoku.Sudoku, err error) {
+func doGenerate(digHoleTotal int, concurrency int) (_sudoku sudoku.Sudoku, err error) {
 
-	// concurrent generate
-	n := runtime.NumCPU()
-	if n < 4 {
-		n = 4
-	}
 	sudokuCh := make(chan sudoku.Sudoku)
 	// signal channel to make sure other goroutine will not block
 	signal := make(chan int)
 	done := false
-	for i := 0; i < n; i++ {
+	for i := 0; i < concurrency; i++ {
 		go generate(sudokuCh, signal, digHoleTotal, &done)
 	}
 	signal <- 1

@@ -70,6 +70,8 @@ func main(){
 
 make four level random one solution sudoku puzzle function `generator.Generate` 
 
+[Generator Benchmark](./generator_benchmark.md)
+
 #### level constant
 
 - 简单 `LEVEL_EASY`
