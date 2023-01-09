@@ -86,9 +86,6 @@ func main(){
   if err1 != nil {
     fmt.Println(err1)
   }
-  if err2 != nil {
-    fmt.Println(err2)
-  }
 }
 ```
 
