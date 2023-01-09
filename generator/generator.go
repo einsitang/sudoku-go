@@ -2,15 +2,12 @@ package generator
 
 import (
 	"errors"
+	"math/rand"
 	"runtime"
+	"time"
 
 	sudoku "github.com/einsitang/sudoku-go/core"
 )
-
-type puzzleRule struct {
-	Fill uint8 `desc:"each zone fill num"`
-	Zone uint8 `desc:"how many zone much the fill rule"`
-}
 
 const (
 	LEVEL_EASY   = 0
@@ -19,244 +16,122 @@ const (
 	LEVEL_EXPERT = 3
 
 	EMPTY = -1
-	FILL  = -2
 )
 
 // Generate
-// use this function to generate a sudoku quick , but not 100% one-solution sudoku ,
-// if lower level LEVEL_MEDIUM will higher success rate
-// whatever , you want quick and without care multi answer sudoku problem , use this is ok
+// this function will generate sudoku with on-solution
 func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
-	return doGenerate(level, false)
-}
-
-// StrictGenerate
-// this function will make sure generate sudoku will one-solution answer ,
-// but it will take long time compared to Generate function
-func StrictGenerate(level int) (_sudoku sudoku.Sudoku, err error) {
-	return doGenerate(level, true)
-}
-
-func doGenerate(level int, strict bool) (_sudoku sudoku.Sudoku, err error) {
-
-	enhance := (uint8)(0)
-	rule := [5]puzzleRule{
-		{7, 1},
-		{6, 1},
-		{5, 3},
-		{4, 2},
-		{3, 2},
-	}
+	digHoleTotal := 40
 	switch level {
 	case LEVEL_EASY:
-		enhance = 0
+		digHoleTotal = 40
 	case LEVEL_MEDIUM:
-		enhance = 8
+		digHoleTotal = 45
 	case LEVEL_HARD:
-		enhance = 14
+		digHoleTotal = 54
 	case LEVEL_EXPERT:
-		enhance = 18
+		digHoleTotal = 58
 	default:
 		err = errors.New("unknown level , make sure range by [0,3]")
 		return
 	}
-	ch := generateChan(rule, enhance, strict)
-	_sudoku = <-ch
-	return
+	return doGenerate(digHoleTotal)
 }
 
-func generateChan(rule [5]puzzleRule, enhance uint8, strict bool) <-chan sudoku.Sudoku {
-	var holes, simplePuzzle [81]int8
-
-	// empty simple puzzle
-	for i := range simplePuzzle {
-		simplePuzzle[i] = EMPTY
-	}
-
-	// dig hole (base hole)
-	randZones := sudoku.ShuffleNumbers()
-	countLoop := 0
-	for _, r := range rule {
-		// loop rule to make puzzle hole
-		for x := 0; x < int(r.Zone); x++ {
-			borehole(&holes, randZones[countLoop], r)
-			countLoop++
-		}
-
-	}
-
-	// get center indexes
-	centerIndexes := func() [9]int {
-
-		// calculate center coordinates
-		var indexes [9]int
-		i := 0
-		for y := range [3]int{0, 1, 2} {
-			_ = y
-			for x := range [3]int{0, 1, 2} {
-				indexes[i] = y*9 + 3 + x
-				i++
-			}
-		}
-		return indexes
-	}()
-
-	// random center simple puzzle
-	nums := sudoku.ShuffleNumbers()
-	for i, index := range centerIndexes {
-		simplePuzzle[index] = int8(nums[i] + 1)
-	}
+func doGenerate(digHoleTotal int) (_sudoku sudoku.Sudoku, err error) {
 
 	// concurrent generate
 	n := runtime.NumCPU()
 	if n < 4 {
 		n = 4
 	}
-	ch := make(chan sudoku.Sudoku)
+	sudokuCh := make(chan sudoku.Sudoku)
 	// signal channel to make sure other goroutine will not block
 	signal := make(chan int)
+	done := false
 	for i := 0; i < n; i++ {
-		go generate(ch, signal, holes, enhance, strict, simplePuzzle)
+		go generate(sudokuCh, signal, digHoleTotal, &done)
 	}
 	signal <- 1
-	return ch
+	_sudoku = <-sudokuCh
+	return
 }
 
-//	the function to make cycle to validate sudoku calculate is same answer ,
-//	and try many times will improve reliability
-func repeatValidateSudoku(basicSudoku *sudoku.Sudoku, puzzle *[81]int8, tryCount int) (bool, *sudoku.Sudoku) {
-	var vailSudoku sudoku.Sudoku
-	isPass := true
-	if tryCount < 0 {
-		tryCount = 1
+func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, done *bool) {
+	if *done {
+		return
 	}
-	for tryCount > 0 {
-		vailSudoku = sudoku.Sudoku{}
-		_ = vailSudoku.Init(*puzzle)
-		if !sudokuEquals(basicSudoku, &vailSudoku) {
-			isPass = false
+
+	var simplePuzzle [81]int8
+
+	// init simple puzzle
+	nums := sudoku.ShuffleNumbers()
+	ni := 0
+	for i := range simplePuzzle {
+		_, _, zone := sudoku.Location(i)
+		simplePuzzle[i] = EMPTY
+
+		// choose center zone to random fill
+		if zone == 4 {
+			simplePuzzle[i] = (int8)(nums[ni] + 1)
+			ni++
+		} else {
+			simplePuzzle[i] = EMPTY
 		}
-		tryCount--
 	}
-	return isPass, &vailSudoku
-}
 
-func generate(ch chan<- sudoku.Sudoku, signal chan int, holes [81]int8, enhance uint8, strict bool, basicPuzzle [81]int8) {
 	var vailSudoku sudoku.Sudoku
 	basicSudoku := sudoku.Sudoku{}
-	_ = basicSudoku.Init(basicPuzzle)
+	_ = basicSudoku.Init(simplePuzzle)
 	puzzle := basicSudoku.Answer()
-
-	// try dig hole and validate sudoku
-	// apply hole template to make new puzzle
-	basicDigHoleCounter := 0
-	for i := range holes {
-		if holes[i] != FILL {
-			basicDigHoleCounter++
-			puzzle[i] = EMPTY
-
-			// basic dig hole less than mean puzzle resolve may not collision
-			if basicDigHoleCounter < 5 {
-				continue
+	holeCounter := 0
+	candidateHoles := randCandidateHoles()
+	for _, hoIndex := range candidateHoles {
+		old := puzzle[hoIndex]
+		puzzle[hoIndex] = EMPTY
+		vailSudoku = sudoku.Sudoku{}
+		if err := vailSudoku.StrictInit(puzzle); err != nil {
+			puzzle[hoIndex] = old
+			continue
+		}
+		holeCounter++
+		if holeCounter >= digHoleTotal {
+			_, signalIsOpen := <-signal
+			if signalIsOpen {
+				*done = true
+				sudokuCh <- vailSudoku
+				close(signal)
+				close(sudokuCh)
 			}
-
-			isPass, matchSudoku := repeatValidateSudoku(&basicSudoku, &puzzle, basicDigHoleCounter/3)
-			if !isPass {
-				go generate(ch, signal, holes, enhance, strict, basicPuzzle)
-				return
-			}
-			vailSudoku = *matchSudoku
+			return
 		}
 	}
-
-	// deep dig hole and validate sudoku
-	// 深度挖洞
-	candidateHoles := buildCandidateHoles(holes)
-	tryMoreHole := 1 + enhance
-	for _, ho := range candidateHoles {
-		for _, hoIndex := range ho {
-			if tryMoreHole > 0 {
-
-				old := puzzle[hoIndex]
-				puzzle[hoIndex] = EMPTY
-
-				if !strict {
-					tryMoreHole--
-					continue
-				}
-
-				// sudoku solver to make sure deep dig hole will match same answer
-				isPass, matchSudoku := repeatValidateSudoku(&basicSudoku, &puzzle, 3)
-				if isPass {
-					vailSudoku = *matchSudoku
-					tryMoreHole--
-				} else {
-					puzzle[hoIndex] = old
-				}
-
-			} else {
-				break
-			}
-		}
-	}
-
-	if tryMoreHole > 0 {
-		go generate(ch, signal, holes, enhance, strict, basicPuzzle)
-	} else {
-		_, signalIsOk := <-signal
-		if signalIsOk {
-			ch <- vailSudoku
-			close(signal)
-			close(ch)
-		}
+	if !*done {
+		generate(sudokuCh, signal, digHoleTotal, done)
 	}
 }
 
-func sudokuEquals(sudoku1, sudoku2 *sudoku.Sudoku) bool {
-	ans1 := sudoku1.Answer()
-	ans2 := sudoku2.Answer()
-	for i := range ans1 {
-		if ans1[i] != ans2[i] {
-			return false
-		}
-	}
-
-	return true
+func remove(slice []int, s int) []int {
+	return append(slice[:s], slice[s+1:]...)
 }
 
-func borehole(puzzle *[81]int8, zoneIndex int, rule puzzleRule) {
-	// hole for fill number
-	fill := rule.Fill
-	shuffleNums := sudoku.ShuffleNumbers()
-	randNums := shuffleNums[:fill]
-	// make hold mark -> FILL = -2
-	for _, randIndex := range randNums {
-		_, _, index := sudoku.BearingFromZone(zoneIndex, randIndex)
-		puzzle[index] = FILL
+func randCandidateHoles() []int {
+	// 随机出 1-9 区的固定位置
+	// 剩余 81 减 9 洗牌 作为候选 hole
+	arr := make([]int, 81)
+	for i := range arr {
+		arr[i] = i
 	}
-}
-
-func buildCandidateHoles(holes [81]int8) [9][]int {
-
-	var candidateHoles [9][]int
-	randZones := sudoku.ShuffleNumbers()
-	for _, randZone := range randZones {
-		// less keep 2 FILL position not to dig hole
-		min := 2
-		indexes := sudoku.IndexesFromZone(randZone)
-		indexes = sudoku.Shuffle(indexes)
-
-		arr := make([]int, 0)
-		for _, index := range indexes {
-			if holes[index] == FILL {
-				if min <= 0 {
-					arr = append(arr, index)
-				}
-				min--
-			}
-		}
-		candidateHoles[randZone] = arr
-
+	rand.Seed(time.Now().UnixNano())
+	zones := [9]int{0, 1, 2, 3, 4, 5, 6, 7, 8}
+	for i, zone := range zones {
+		x := rand.Intn(9)
+		_, _, index := sudoku.LocationAtZone(zone, x)
+		arr = remove(arr, index-i)
 	}
-	return candidateHoles
+	rand.Shuffle(len(arr), func(i, j int) {
+		arr[i], arr[j] = arr[j], arr[i]
+	})
+
+	return arr
 }

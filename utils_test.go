@@ -22,13 +22,13 @@ func TestShuffle(t *testing.T) {
 
 func TestBearingFromZone(t *testing.T) {
 	zone, indexFromZone := 2, 5
-	x, y, index := sudoku.BearingFromZone(zone, indexFromZone)
+	x, y, index := sudoku.LocationAtZone(zone, indexFromZone)
 	log.Printf("zone[ %v ] , indexFromZone : %v : x : %v , y : %v , index : %v", zone, indexFromZone, x, y, index)
 }
 
 func TestIndexesFromZone(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 	zone := rand.Intn(9)
-	indexes := sudoku.IndexesFromZone(zone)
+	indexes := sudoku.IndexesAtZone(zone)
 	log.Printf("zone[ %v ] : %v ", zone, indexes)
 }

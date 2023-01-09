@@ -12,8 +12,7 @@ func TestGenerate(t *testing.T) {
 
 	t.Logf("use goroutine : %v \n", runtime.NumGoroutine())
 	beginTime := time.Now()
-	//sudoku, err := generator.Generate(generator.LEVEL_EXPERT)
-	sudoku, err := generator.StrictGenerate(generator.LEVEL_EXPERT)
+	sudoku, err := generator.Generate(generator.LEVEL_EXPERT)
 	if err != nil {
 		t.Fatal(err)
 	}

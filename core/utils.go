@@ -5,21 +5,21 @@ import (
 	"time"
 )
 
-func Bearing(index int) (x, y, zone int) {
+func Location(index int) (x, y, zone int) {
 	x = index / 9
 	y = index % 9
 	zone = x/3*3 + y/3
 	return
 }
 
-func BearingFromZone(zone, indexFromZone int) (x, y, index int) {
+func LocationAtZone(zone, indexFromZone int) (x, y, index int) {
 	x = zone/3*3 + indexFromZone/3
 	y = zone%3*3 + indexFromZone%3
 	index = x*9 + y
 	return
 }
 
-func IndexesFromZone(zone int) [9]int {
+func IndexesAtZone(zone int) [9]int {
 	var indexes [9]int
 	i := 0
 	for y := 0; y < 3; y++ {

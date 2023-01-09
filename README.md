@@ -21,6 +21,14 @@ input `[81]int8` array and return a `sudoku.Sudoku`structure with full answer
 
 use `-1` to mark the position mean **computation item**
 
+#### Init
+
+`Init` use backtrack algorithm to solve puzzle , no matter is many solution or not , find one then return
+
+#### StrictInit
+
+`StrictInit` is only can solve one solution sudoku puzzle , more then one will return error message : puzzle is not aone-solution sudoku , if you only want solve sudoku puzzle , just use `Init`
+
 ```golang
 // test case : main_test.go
 import sudoku "github.com/einsitang/sudoku-go/core"
@@ -42,6 +50,7 @@ func main(){
 
   _sudoku := sudoku.Sudoku{}
   err := _sudoku.Init(puzzle)
+  // err := _sudoku.StrictInit(puzzle)
   if err != nil {
     fmt.Println(err)
   } else {
@@ -57,27 +66,9 @@ func main(){
 
 ### 生成器 generator
 
-可以随机生成四种不同难度的数独题目
+可以随机生成四种不同难度的数独题目(唯一解数独)
 
-make random puzzle with function `generator.Generate` or `generator.StrictGenerate`
-
-#### Generate
-
-用于生成数独题目，存在一定概率生成的数独存在多解(非唯一解数独),但生成速度最快
-
-如果生成难度低于`LEVEL_MEDIUM`,使用`Generate`函数造成的多解数独情况会降低，但依旧不保证100%唯一数独解
-
-simple generator , use this function can make puzzle quick ,  but not 100% one-solution sudoku
-
-if you mind sudoku with multi answer to solve , you shoud use `StrictGenerate`
-
-with lower level `LEVEL_MEDIUM` that will be fine
-
-#### StrictGenerate
-
-严格生成器，功能和 `Generate`一样，但严格要求生成的随机数独仅有一个解，同时会降低生成速度
-
-same function like `Generate`,but output 100% one-solution and maybe take a long time
+make four level random one solution sudoku puzzle function `generator.Generate` 
 
 #### level constant
 
@@ -92,8 +83,6 @@ import generator "github.com/einsitang/sudoku-go/generator"
 
 func main(){
   sudoku1, err1 := generator.Generate(generator.LEVEL_EXPERT)
-  // may take long time 
-  sudoku2, err2 := generator.StrictGenerate(generator.LEVEL_EXPERT)
   if err1 != nil {
     fmt.Println(err1)
   }
