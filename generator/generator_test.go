@@ -1,8 +1,7 @@
-package main
+package generator
 
 import (
 	"encoding/json"
-	generator "github.com/einsitang/sudoku-go/generator"
 	"runtime"
 	"testing"
 	"time"
@@ -12,7 +11,7 @@ func TestGenerate(t *testing.T) {
 
 	t.Logf("use goroutine : %v \n", runtime.NumGoroutine())
 	beginTime := time.Now()
-	sudoku, err := generator.Generate(generator.LEVEL_EXPERT)
+	sudoku, err := Generate(LEVEL_EXPERT)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +30,7 @@ func BenchmarkGenerateLevelExpert(b *testing.B) {
 	b.Logf("BenchmarkGenerateLevelExpert N : %v", b.N)
 	beginTime := time.Now()
 	for i := 0; i < b.N; i++ {
-		_, err := generator.Generate(generator.LEVEL_EXPERT)
+		_, err := Generate(LEVEL_EXPERT)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -44,7 +43,7 @@ func BenchmarkGenerateLevelMedium(b *testing.B) {
 	b.Logf("BenchmarkGenerateLevelMedium N : %v", b.N)
 	beginTime := time.Now()
 	for i := 0; i < b.N; i++ {
-		_, err := generator.Generate(generator.LEVEL_MEDIUM)
+		_, err := Generate(LEVEL_MEDIUM)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -57,7 +56,7 @@ func BenchmarkGenerateLevelHard(b *testing.B) {
 	b.Logf("BenchmarkGenerateLevelHard N : %v", b.N)
 	beginTime := time.Now()
 	for i := 0; i < b.N; i++ {
-		_, err := generator.Generate(generator.LEVEL_HARD)
+		_, err := Generate(LEVEL_HARD)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -70,7 +69,7 @@ func BenchmarkGenerateLevelEasy(b *testing.B) {
 	b.Logf("BenchmarkGenerateLevelEasy N : %v", b.N)
 	beginTime := time.Now()
 	for i := 0; i < b.N; i++ {
-		_, err := generator.Generate(generator.LEVEL_EASY)
+		_, err := Generate(LEVEL_EASY)
 		if err != nil {
 			b.Fatal(err)
 		}

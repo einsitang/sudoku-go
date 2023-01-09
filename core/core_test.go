@@ -1,7 +1,6 @@
-package main
+package core
 
 import (
-	sudoku "github.com/einsitang/sudoku-go/core"
 	"testing"
 	"time"
 )
@@ -51,7 +50,7 @@ func TestSolve(t *testing.T) {
 	}
 }
 
-func getSudoku(isStrictMode bool) (err error, _sudoku sudoku.Sudoku) {
+func getSudoku(isStrictMode bool) (err error, _sudoku Sudoku) {
 	//puzzle := [81]int8{
 	//	-1, -1, 8 /* */, 9, -1, 6 /* */, -1, -1, 5,
 	//	-1, 4, 3, -1 /* */, -1, -1, -1 /* */, 2, -1,
@@ -69,7 +68,7 @@ func getSudoku(isStrictMode bool) (err error, _sudoku sudoku.Sudoku) {
 	// this puzzle from generator with level expert
 	puzzle := [81]int8{9, 8, -1, -1, -1, -1, 7, -1, 6, -1, -1, -1, 7, -1, 4, -1, -1, 2, -1, -1, -1, 9, -1, -1, -1, -1, 5, -1, -1, -1, 1, 8, -1, -1, -1, -1, -1, -1, 4, -1, -1, -1, 1, 9, -1, -1, -1, -1, 5, -1, -1, -1, -1, -1, -1, -1, 9, -1, -1, -1, -1, -1, 1, 4, -1, -1, -1, 5, -1, -1, -1, -1, 6, 7, -1, -1, -1, 3, 2, -1, -1}
 
-	_sudoku = sudoku.Sudoku{}
+	_sudoku = Sudoku{}
 	if isStrictMode {
 		err = _sudoku.StrictInit(puzzle)
 	} else {
