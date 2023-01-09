@@ -3,42 +3,41 @@ package main
 import (
 	sudoku "github.com/einsitang/sudoku-go/core"
 	"testing"
+	"time"
 )
 
-//func BenchmarkMain(t *testing.B) {
-//	t.Logf("Benchmark N : %v", t.N)
-//	err, _sudoku := getSudoku(false)
-//	if err != nil {
-//		t.Log(err)
-//		t.Fail()
-//	} else {
-//		_sudoku.Debug()
-//		t.Log("sudoku is done")
-//	}
-//}
-
-func BenchmarkNormalMode(t *testing.B) {
-	t.Logf("BenchmarkNormalMode N : %v", t.N)
-	err, _ := getSudoku(false)
-	if err != nil {
-		t.Log(err)
-		t.Fail()
-	} else {
-		//_sudoku.Debug()
-		t.Log("sudoku is done")
+func BenchmarkInit(t *testing.B) {
+	t.Logf("BenchmarkInit N : %v", t.N)
+	beginTime := time.Now()
+	for n := 0; n < t.N; n++ {
+		err, _ := getSudoku(false)
+		if err != nil {
+			t.Log(err)
+			t.Fail()
+		} else {
+			//_sudoku.Debug()
+			//t.Log("sudoku is done")
+		}
 	}
+	endTime := time.Now()
+	t.Logf("BenchmarkInit (N:%v) total time : %v ms", t.N, endTime.Sub(beginTime).Milliseconds())
 }
 
 func BenchmarkStrictInit(t *testing.B) {
 	t.Logf("BenchmarkStrictInit N : %v", t.N)
-	err, _ := getSudoku(true)
-	if err != nil {
-		t.Log(err)
-		t.Fail()
-	} else {
-		//_sudoku.Debug()
-		t.Log("sudoku is done")
+	beginTime := time.Now()
+	for n := 0; n < t.N; n++ {
+		err, _ := getSudoku(true)
+		if err != nil {
+			t.Log(err)
+			t.Fail()
+		} else {
+			//_sudoku.Debug()
+			//t.Log("sudoku is done")
+		}
 	}
+	endTime := time.Now()
+	t.Logf("BenchmarkStrictInit (N:%v) total time : %v ms", t.N, endTime.Sub(beginTime).Milliseconds())
 }
 
 func TestSolve(t *testing.T) {
