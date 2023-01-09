@@ -19,7 +19,7 @@ const (
 )
 
 // Generate
-// this function will generate sudoku with on-solution
+// this function will generate sudoku with one-solution
 func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
 	digHoleTotal := 40
 	switch level {
