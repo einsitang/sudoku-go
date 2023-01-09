@@ -27,7 +27,7 @@ use `-1` to mark the position mean **computation item**
 
 #### StrictInit
 
-`StrictInit` is only can solve one solution sudoku puzzle , more then one will return error message : puzzle is not aone-solution sudoku , if you only want solve sudoku puzzle , just use `Init`
+`StrictInit` is only can solve one solution sudoku puzzle , more then one will return error message : puzzle is not one solution sudoku , if you only want solve sudoku puzzle , just use `Init`
 
 ```golang
 // test case : main_test.go
