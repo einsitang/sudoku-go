@@ -148,6 +148,16 @@ func (_self *Sudoku) dsfOneSolutionCalculate(_sudoku Sudoku, index int) {
 	}
 
 	if index >= 81 {
+		for _, num := range _sudoku.answer {
+			if num == -1 {
+				return
+			}
+		}
+		_self.answer = _sudoku.answer
+		_self.rows = _sudoku.rows
+		_self.cells = _sudoku.cells
+		_self.zones = _sudoku.zones
+		_self.finishes++
 		return
 	}
 
@@ -167,14 +177,6 @@ func (_self *Sudoku) dsfOneSolutionCalculate(_sudoku Sudoku, index int) {
 			zones[zone][num] = true
 			answer[index] = int8(num + 1)
 
-			if index == 80 {
-				_self.answer = _sudoku.answer
-				_self.rows = _sudoku.rows
-				_self.cells = _sudoku.cells
-				_self.zones = _sudoku.zones
-				_self.finishes++
-				return
-			}
 			_self.dsfOneSolutionCalculate(_sudoku, index+1)
 			answer[index] = -1
 			rows[x][num] = false

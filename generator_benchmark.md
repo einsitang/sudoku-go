@@ -1,6 +1,6 @@
 # Generator Benchmark
 
-command : `go test -bench=. .generator/generator_test.go -benchtime=5s`
+command : `go test -bench=. ./generator/* -benchtime=5s`
 
 concurrency with goroutine : 8(CPU CORE)
 
