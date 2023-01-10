@@ -39,11 +39,11 @@ func BenchmarkGenerateLevelExpert(b *testing.B) {
 	b.Logf("generated (N:%v) total time : %v ms", b.N, endTime.Sub(beginTime).Milliseconds())
 }
 
-func BenchmarkGenerateLevelMedium(b *testing.B) {
-	b.Logf("BenchmarkGenerateLevelMedium N : %v", b.N)
+func BenchmarkGenerateLevelHard(b *testing.B) {
+	b.Logf("BenchmarkGenerateLevelHard N : %v", b.N)
 	beginTime := time.Now()
 	for i := 0; i < b.N; i++ {
-		_, err := Generate(LEVEL_MEDIUM)
+		_, err := Generate(LEVEL_HARD)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -52,11 +52,11 @@ func BenchmarkGenerateLevelMedium(b *testing.B) {
 	b.Logf("generated (N:%v) total time : %v ms", b.N, endTime.Sub(beginTime).Milliseconds())
 }
 
-func BenchmarkGenerateLevelHard(b *testing.B) {
-	b.Logf("BenchmarkGenerateLevelHard N : %v", b.N)
+func BenchmarkGenerateLevelMedium(b *testing.B) {
+	b.Logf("BenchmarkGenerateLevelMedium N : %v", b.N)
 	beginTime := time.Now()
 	for i := 0; i < b.N; i++ {
-		_, err := Generate(LEVEL_HARD)
+		_, err := Generate(LEVEL_MEDIUM)
 		if err != nil {
 			b.Fatal(err)
 		}
