@@ -1,9 +1,9 @@
 # sudoku-go 
  [![License](https://img.shields.io/badge/License-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Page Views Count](https://badges.toozhao.com/badges/01FT3Z973THHC20KF0D6MDQGWE/blue.svg)](https://badges.toozhao.com/stats/01FT3Z973THHC20KF0D6MDQGWE "Get your own page views count badge on badges.toozhao.com")
 
-使用 `golang` 实现的数独`计算器`和`生成器`
+使用 `golang` 实现的数独`解题器`和`生成器`
 
-opensource sudoku calculator and puzzle generator golang library
+opensource sudoku solver and puzzle generator `golang` library
 
 ## 功能 features
 - 数独解题器 - sodoku calculator  / solver

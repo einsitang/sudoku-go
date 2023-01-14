@@ -14,7 +14,16 @@ const (
 	LEVEL_MEDIUM = 1
 	LEVEL_HARD   = 2
 	LEVEL_EXPERT = 3
+	// LEVEL_HELL
+	// ⚠️ this difficulty will take a long time , carefully to use
+	// can't open because take too long time
+	//LEVEL_HELL = 4
 
+	// MIN_CONCURRENCY
+	// minimum concurrency value is set here , if use concurrency to improve performance
+	MIN_CONCURRENCY = 2
+
+	// EMPTY puzzle empty value
 	EMPTY = -1
 )
 
@@ -24,8 +33,9 @@ func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
 	// concurrent generate
 	// if level below medium , just use one concurrent that will work fine
 	n := runtime.NumCPU()
-	if n < 4 {
-		n = 4
+	n = n >> 1
+	if n < MIN_CONCURRENCY {
+		n = MIN_CONCURRENCY
 	}
 
 	digHoleTotal := 40
@@ -37,9 +47,12 @@ func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
 		digHoleTotal = 45
 		n = 1
 	case LEVEL_HARD:
-		digHoleTotal = 54
+		digHoleTotal = 52
 	case LEVEL_EXPERT:
-		digHoleTotal = 58
+		digHoleTotal = 56
+	//case LEVEL_HELL:
+	//	digHoleTotal = 60
+	//	fmt.Printf("😈welcome to hell😈 this difficulty will take a long time...")
 	default:
 		err = errors.New("unknown level , make sure range by [0,3]")
 		return
@@ -127,12 +140,18 @@ func randCandidateHoles() []int {
 	for i := range arr {
 		arr[i] = i
 	}
+	// make sure each zone must have one cell to fixed
+	// need calculate random index on each zone , and sort them
 	rand.Seed(time.Now().UnixNano())
-	zones := [9]int{0, 1, 2, 3, 4, 5, 6, 7, 8}
-	for i, zone := range zones {
+	fixedPositionByZones := [9]int{0, 1, 2, 3, 4, 5, 6, 7, 8}
+	for i, zone := range fixedPositionByZones {
 		x := rand.Intn(9)
 		_, _, index := sudoku.LocationAtZone(zone, x)
-		arr = remove(arr, index-i)
+		fixedPositionByZones[i] = index
+	}
+	for i, fixedPosition := range fixedPositionByZones {
+		//fmt.Printf("fixedPosition : %v , i : %v len(arr) : %v \n", fixedPosition, i, len(arr))
+		arr = remove(arr, fixedPosition-i)
 	}
 	rand.Shuffle(len(arr), func(i, j int) {
 		arr[i], arr[j] = arr[j], arr[i]

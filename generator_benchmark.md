@@ -10,73 +10,75 @@ goarch: amd64
 cpu: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz
 BenchmarkGenerateLevelExpert
     generator_test.go:30: BenchmarkGenerateLevelExpert N : 1
-    generator_test.go:39: generated (N:1) total time : 538 ms
-    generator_test.go:30: BenchmarkGenerateLevelExpert N : 10
-    generator_test.go:39: generated (N:10) total time : 2599 ms
-    generator_test.go:30: BenchmarkGenerateLevelExpert N : 22
-    generator_test.go:39: generated (N:22) total time : 5362 ms
-BenchmarkGenerateLevelExpert-8   	      22	 243772013 ns/op
+    generator_test.go:39: generated (N:1) total time : 6 ms
+    generator_test.go:30: BenchmarkGenerateLevelExpert N : 100
+    generator_test.go:39: generated (N:100) total time : 2945 ms
+    generator_test.go:30: BenchmarkGenerateLevelExpert N : 202
+    generator_test.go:39: generated (N:202) total time : 5537 ms
+BenchmarkGenerateLevelExpert-8               202          27413273 ns/op
 BenchmarkGenerateLevelHard
     generator_test.go:43: BenchmarkGenerateLevelHard N : 1
-    generator_test.go:52: generated (N:1) total time : 14 ms
+    generator_test.go:52: generated (N:1) total time : 6 ms
     generator_test.go:43: BenchmarkGenerateLevelHard N : 100
-    generator_test.go:52: generated (N:100) total time : 2531 ms
-    generator_test.go:43: BenchmarkGenerateLevelHard N : 236
-    generator_test.go:52: generated (N:236) total time : 5734 ms
-BenchmarkGenerateLevelHard-8     	     236	  24297489 ns/op
+    generator_test.go:52: generated (N:100) total time : 606 ms
+    generator_test.go:43: BenchmarkGenerateLevelHard N : 987
+    generator_test.go:52: generated (N:987) total time : 5640 ms
+BenchmarkGenerateLevelHard-8                 987           5715086 ns/op
 BenchmarkGenerateLevelMedium
     generator_test.go:56: BenchmarkGenerateLevelMedium N : 1
-    generator_test.go:65: generated (N:1) total time : 50 ms
+    generator_test.go:65: generated (N:1) total time : 1 ms
     generator_test.go:56: BenchmarkGenerateLevelMedium N : 100
-    generator_test.go:65: generated (N:100) total time : 111 ms
-    generator_test.go:56: BenchmarkGenerateLevelMedium N : 5364
-    generator_test.go:65: generated (N:5364) total time : 6043 ms
-BenchmarkGenerateLevelMedium-8   	    5364	   1126704 ns/op
+    generator_test.go:65: generated (N:100) total time : 107 ms
+    generator_test.go:56: BenchmarkGenerateLevelMedium N : 5599
+    generator_test.go:65: generated (N:5599) total time : 5988 ms
+BenchmarkGenerateLevelMedium-8              5599           1069496 ns/op
 BenchmarkGenerateLevelEasy
     generator_test.go:69: BenchmarkGenerateLevelEasy N : 1
     generator_test.go:78: generated (N:1) total time : 0 ms
     generator_test.go:69: BenchmarkGenerateLevelEasy N : 100
-    generator_test.go:78: generated (N:100) total time : 79 ms
-    generator_test.go:69: BenchmarkGenerateLevelEasy N : 7516
-    generator_test.go:78: generated (N:7516) total time : 6113 ms
-BenchmarkGenerateLevelEasy-8     	    7516	    813355 ns/op
+    generator_test.go:78: generated (N:100) total time : 82 ms
+    generator_test.go:69: BenchmarkGenerateLevelEasy N : 7252
+    generator_test.go:78: generated (N:7252) total time : 5655 ms
+BenchmarkGenerateLevelEasy-8                7252            779866 ns/op
 PASS
-ok  	command-line-arguments	30.098s
+ok      command-line-arguments  26.764s
 
 goos: darwin
 goarch: amd64
 cpu: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz
 BenchmarkGenerateLevelExpert
     generator_test.go:30: BenchmarkGenerateLevelExpert N : 1
-    generator_test.go:39: generated (N:1) total time : 38 ms
+    generator_test.go:39: generated (N:1) total time : 5 ms
     generator_test.go:30: BenchmarkGenerateLevelExpert N : 100
-    generator_test.go:39: generated (N:100) total time : 29797 ms
-BenchmarkGenerateLevelExpert-8   	     100	 297975824 ns/op
+    generator_test.go:39: generated (N:100) total time : 2499 ms
+    generator_test.go:30: BenchmarkGenerateLevelExpert N : 240
+    generator_test.go:39: generated (N:240) total time : 7017 ms
+BenchmarkGenerateLevelExpert-8               240          29240097 ns/op
 BenchmarkGenerateLevelHard
     generator_test.go:43: BenchmarkGenerateLevelHard N : 1
-    generator_test.go:52: generated (N:1) total time : 23 ms
+    generator_test.go:52: generated (N:1) total time : 3 ms
     generator_test.go:43: BenchmarkGenerateLevelHard N : 100
-    generator_test.go:52: generated (N:100) total time : 2177 ms
-    generator_test.go:43: BenchmarkGenerateLevelHard N : 274
-    generator_test.go:52: generated (N:274) total time : 5965 ms
-BenchmarkGenerateLevelHard-8     	     274	  21773413 ns/op
+    generator_test.go:52: generated (N:100) total time : 577 ms
+    generator_test.go:43: BenchmarkGenerateLevelHard N : 1039
+    generator_test.go:52: generated (N:1039) total time : 5320 ms
+BenchmarkGenerateLevelHard-8                1039           5120495 ns/op
 BenchmarkGenerateLevelMedium
     generator_test.go:56: BenchmarkGenerateLevelMedium N : 1
-    generator_test.go:65: generated (N:1) total time : 14 ms
+    generator_test.go:65: generated (N:1) total time : 1 ms
     generator_test.go:56: BenchmarkGenerateLevelMedium N : 100
-    generator_test.go:65: generated (N:100) total time : 122 ms
-    generator_test.go:56: BenchmarkGenerateLevelMedium N : 4890
-    generator_test.go:65: generated (N:4890) total time : 5546 ms
-BenchmarkGenerateLevelMedium-8   	    4890	   1134310 ns/op
+    generator_test.go:65: generated (N:100) total time : 110 ms
+    generator_test.go:56: BenchmarkGenerateLevelMedium N : 5419
+    generator_test.go:65: generated (N:5419) total time : 5656 ms
+BenchmarkGenerateLevelMedium-8              5419           1043884 ns/op
 BenchmarkGenerateLevelEasy
     generator_test.go:69: BenchmarkGenerateLevelEasy N : 1
     generator_test.go:78: generated (N:1) total time : 0 ms
     generator_test.go:69: BenchmarkGenerateLevelEasy N : 100
-    generator_test.go:78: generated (N:100) total time : 78 ms
-    generator_test.go:69: BenchmarkGenerateLevelEasy N : 7620
-    generator_test.go:78: generated (N:7620) total time : 6411 ms
-BenchmarkGenerateLevelEasy-8     	    7620	    841371 ns/op
+    generator_test.go:78: generated (N:100) total time : 75 ms
+    generator_test.go:69: BenchmarkGenerateLevelEasy N : 7908
+    generator_test.go:78: generated (N:7908) total time : 6251 ms
+BenchmarkGenerateLevelEasy-8                7908            790503 ns/op
 PASS
-ok  	command-line-arguments	50.419s
+ok      command-line-arguments  27.686s
 ```
 
