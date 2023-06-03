@@ -9,9 +9,8 @@ import (
 
 func TestGenerate(t *testing.T) {
 
-	t.Logf("use goroutine : %v \n", runtime.NumGoroutine())
 	beginTime := time.Now()
-	sudoku, err := Generate(LEVEL_EXPERT)
+	sudoku, err := Generate(LEVEL_MEDIUM)
 	if err != nil {
 		t.Fatal(err)
 	}

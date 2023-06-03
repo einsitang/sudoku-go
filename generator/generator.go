@@ -2,6 +2,7 @@ package generator
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"runtime"
 	"time"
@@ -17,7 +18,7 @@ const (
 	// LEVEL_HELL
 	// ⚠️ this difficulty will take a long time , carefully to use
 	// can't open because take too long time
-	//LEVEL_HELL = 4
+	LEVEL_HELL = 4
 
 	// MIN_CONCURRENCY
 	// minimum concurrency value is set here , if use concurrency to improve performance
@@ -50,9 +51,10 @@ func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
 		digHoleTotal = 52
 	case LEVEL_EXPERT:
 		digHoleTotal = 56
-	//case LEVEL_HELL:
-	//	digHoleTotal = 60
-	//	fmt.Printf("😈welcome to hell😈 this difficulty will take a long time...")
+	case LEVEL_HELL:
+		digHoleTotal = 60
+		fmt.Printf("use concurrent : %v \n", n)
+		fmt.Printf("😈welcome to hell😈 this difficulty will take a long time...\n")
 	default:
 		err = errors.New("unknown level , make sure range by [0,3]")
 		return
