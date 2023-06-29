@@ -7,7 +7,7 @@ opensource sudoku solver and puzzle generator `golang` library
 
 ## 功能 features
 - 数独解题器 - sodoku calculator  / solver
-- 题目生成器 - random puzzle generator with goroutinue , multi-core support
+- 题目生成器 - random one-solution puzzle generator with goroutinue , multi-core support
 
 ## 安装 install
 
@@ -27,7 +27,7 @@ use `-1` to mark the position mean **computation item**
 
 #### StrictInit
 
-`StrictInit` is only can solve one solution sudoku puzzle , more then one will return error message : puzzle is not one-solution sudoku , if you only want solve sudoku puzzle , just use `Init`
+`StrictInit` is only can solve one-solution sudoku puzzle , more then one will return error message : puzzle is not one-solution sudoku , if you only want solve sudoku puzzle , just use `Init`
 
 #### DLXInit
 
@@ -53,13 +53,16 @@ func main(){
  }
 
   _sudoku := sudoku.Sudoku{}
+
   // with [DFS] algorithm solve puzzle  #recommend#
   err := _sudoku.Init(puzzle)
+
   // only solve with one-solution puzzle use this function
   // err := _sudoku.StrictInit(puzzle)
 
   // with [DLX] algorithm solve puzzle 
   // err := _sudoku.DLXInit(puzzle)
+  
   if err != nil {
     fmt.Println(err)
   } else {
@@ -75,9 +78,9 @@ func main(){
 
 ### 生成器 generator
 
-可以随机生成四种不同难度的数独题目(唯一解数独)
+可以随机生成 **五** 种不同难度的数独题目(唯一解数独)
 
-make four level random one solution sudoku puzzle function `generator.Generate` 
+make **five** level random one-solution sudoku puzzle function `generator.Generate` 
 
 [Generator Benchmark](./generator_benchmark.md)
 

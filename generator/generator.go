@@ -91,8 +91,7 @@ func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, 
 		oldDigHoleTotal := digHoleTotal
 		digHoleTotal -= 2
 		fmt.Printf("generate times : %d / %d(MAX) reduce the difficulty %d -> %d \n", jobCount, maxJobCount, oldDigHoleTotal, digHoleTotal)
-		generate(sudokuCh, signal, digHoleTotal, done, 1)
-		return
+		jobCount = 1
 	}
 
 	var simplePuzzle [81]int8
