@@ -27,7 +27,11 @@ use `-1` to mark the position mean **computation item**
 
 #### StrictInit
 
-`StrictInit` is only can solve one solution sudoku puzzle , more then one will return error message : puzzle is not one solution sudoku , if you only want solve sudoku puzzle , just use `Init`
+`StrictInit` is only can solve one solution sudoku puzzle , more then one will return error message : puzzle is not one-solution sudoku , if you only want solve sudoku puzzle , just use `Init`
+
+#### DLXInit
+
+`DLXInit` is use DLX algorithm to solve puzzle , only for very hard puzzle will faster , recommend use `Init` is well , and they not verify one-solution
 
 ```golang
 // test case : core_test.go
@@ -49,8 +53,13 @@ func main(){
  }
 
   _sudoku := sudoku.Sudoku{}
+  // with [DFS] algorithm solve puzzle  #recommend#
   err := _sudoku.Init(puzzle)
+  // only solve with one-solution puzzle use this function
   // err := _sudoku.StrictInit(puzzle)
+
+  // with [DLX] algorithm solve puzzle 
+  // err := _sudoku.DLXInit(puzzle)
   if err != nil {
     fmt.Println(err)
   } else {
@@ -58,8 +67,8 @@ func main(){
     
     // origin puzzle
    _sudoku.Puzzle() 
-    // with answer sudoku
-   _sudoku.Answer()
+    // sudoku solution
+   _sudoku.Solution()
  }
 }
 ```
@@ -78,14 +87,20 @@ make four level random one solution sudoku puzzle function `generator.Generate`
 - 中等 `LEVEL_MEDIUM`
 - 困难 `LEVEL_HARD`
 - 大师 `LEVEL_EXPERT`
+- "地狱" `LEVEL_HELL`
+
+> "地狱" 难度的数独生成可能会非常慢,因为是数独的生成是完全离线且随机，花费太长时间将会严重耗损计算资源，所以在"地狱"难度耗费一定计算次数后仍然无法输出数独 , 则会降低其初定难度再次生成(大师 < 难度 < "地狱")，从而保证生成器能正常输出数独，因此耗时长度会有较大波动
+> 
+> `LEVE_HELL` will take long time , be carefly using
+> 
 
 ```golang
 // test case : generator_test.go
 import generator "github.com/einsitang/sudoku-go/generator"
 
 func main(){
-  sudoku1, err1 := generator.Generate(generator.LEVEL_EXPERT)
-  if err1 != nil {
+  sudoku1, err := generator.Generate(generator.LEVEL_EXPERT)
+  if err != nil {
     fmt.Println(err1)
   }
 }

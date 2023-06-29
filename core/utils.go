@@ -5,6 +5,15 @@ import (
 	"time"
 )
 
+const (
+	CONST_EASY_HOLES   = 40
+	CONST_MEDIUM_HOLES = 45
+	CONST_HARD_HOLES   = 50
+	CONST_EXPERT_HOLES = 56
+	// ⚠️ hell is realy hard and very consumptive performance ⚠️
+	CONST_HELL_HOLES = 60
+)
+
 func Location(index int) (x, y, zone int) {
 	x = index / 9
 	y = index % 9

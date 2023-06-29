@@ -24,13 +24,33 @@ func (_sudoku Sudoku) Puzzle() [81]int8 {
 	return _sudoku.puzzle
 }
 
+// Deprecated : seem answer is not explicit api , change to Solution
 func (_sudoku Sudoku) Answer() [81]int8 {
+	return _sudoku.answer
+}
+
+func (_sudoku Sudoku) Solution() [81]int8 {
 	return _sudoku.answer
 }
 
 func (_sudoku *Sudoku) StrictInit(puzzle [81]int8) error {
 	_sudoku.isOneSolutionMode = true
 	return _sudoku.Init(puzzle)
+}
+
+func (_sudoku *Sudoku) DLXInit(puzzle [81]int8) error {
+	fmt.Println("use [dlx] caculate it : this is not ensure one-solution sudoku")
+	_sudoku.beginTime = time.Now()
+	_sudoku.puzzle = puzzle
+	solutionStr := DLXSolve(puzzle)
+	if len(solutionStr) != 81 {
+		return errors.New("puzzle can not be resolve")
+	}
+	_sudoku.endTime = time.Now()
+	_sudoku.finishes = 0
+	_sudoku.answer = Str2sudokuGo(&solutionStr)
+
+	return nil
 }
 
 func (_sudoku *Sudoku) Init(puzzle [81]int8) error {
@@ -102,7 +122,7 @@ func (_sudoku *Sudoku) calculate() (err error) {
 func (_sudoku *Sudoku) Debug() {
 	log.Println("--- debug sudoku info ---")
 	log.Print("PUZZLE : \n", _sudoku.puzzleFormat())
-	log.Print("ANSWER : \n", _sudoku.answerFormat())
+	log.Print("SOLUTION : \n", _sudoku.answerFormat())
 	log.Printf("solved the puzzle with total time : %d ms", _sudoku.endTime.Sub(_sudoku.beginTime).Milliseconds())
 }
 
@@ -213,7 +233,13 @@ func sudokuFormat(puzzle [81]int8) string {
 			// one blan space
 			divide = "%s %2v"
 		}
-		str = fmt.Sprintf(divide, str, word)
+		var wordStr string
+		if word == -1 {
+			wordStr = "·"
+		} else {
+			wordStr = fmt.Sprint(word)
+		}
+		str = fmt.Sprintf(divide, str, wordStr)
 	}
 	return str
 }

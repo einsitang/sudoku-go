@@ -17,7 +17,6 @@ const (
 	LEVEL_EXPERT = 3
 	// LEVEL_HELL
 	// ⚠️ this difficulty will take a long time , carefully to use
-	// can't open because take too long time
 	LEVEL_HELL = 4
 
 	// MIN_CONCURRENCY
@@ -28,33 +27,38 @@ const (
 	EMPTY = -1
 )
 
+var (
+	// generate job limit times
+	maxJobCount = 50 * runtime.NumCPU()
+)
+
 // Generate
 // this function will generate sudoku with one-solution
 func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
 	// concurrent generate
 	// if level below medium , just use one concurrent that will work fine
 	n := runtime.NumCPU()
-	n = n >> 1
+	n = n>>2 + 1
 	if n < MIN_CONCURRENCY {
 		n = MIN_CONCURRENCY
 	}
 
-	digHoleTotal := 40
+	digHoleTotal := sudoku.CONST_EASY_HOLES
 	switch level {
 	case LEVEL_EASY:
-		digHoleTotal = 40
+		digHoleTotal = sudoku.CONST_EASY_HOLES
 		n = 1
 	case LEVEL_MEDIUM:
-		digHoleTotal = 45
+		digHoleTotal = sudoku.CONST_MEDIUM_HOLES
 		n = 1
 	case LEVEL_HARD:
-		digHoleTotal = 52
+		digHoleTotal = sudoku.CONST_HARD_HOLES
 	case LEVEL_EXPERT:
-		digHoleTotal = 56
+		digHoleTotal = sudoku.CONST_EXPERT_HOLES
 	case LEVEL_HELL:
-		digHoleTotal = 60
-		fmt.Printf("use concurrent : %v \n", n)
-		fmt.Printf("😈welcome to hell😈 this difficulty will take a long time...\n")
+		digHoleTotal = sudoku.CONST_HELL_HOLES
+		fmt.Printf("use concurrent : %v for \"LEVEL_HELL\" \n", n)
+		fmt.Printf("😈 welcome to hell 😈 : this difficulty will take a long time...\n")
 	default:
 		err = errors.New("unknown level , make sure range by [0,3]")
 		return
@@ -70,15 +74,24 @@ func doGenerate(digHoleTotal int, concurrency int) (_sudoku sudoku.Sudoku, err e
 	signal := make(chan int)
 	done := false
 	for i := 0; i < concurrency; i++ {
-		go generate(sudokuCh, signal, digHoleTotal, &done)
+		go generate(sudokuCh, signal, digHoleTotal, &done, 1)
 	}
 	signal <- 1
 	_sudoku = <-sudokuCh
 	return
 }
 
-func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, done *bool) {
+func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, done *bool, jobCount int) {
 	if *done {
+		return
+	}
+
+	if jobCount >= maxJobCount {
+		// reduce the difficulty
+		oldDigHoleTotal := digHoleTotal
+		digHoleTotal -= 2
+		fmt.Printf("generate times : %d / %d(MAX) reduce the difficulty %d -> %d \n", jobCount, maxJobCount, oldDigHoleTotal, digHoleTotal)
+		generate(sudokuCh, signal, digHoleTotal, done, 1)
 		return
 	}
 
@@ -100,35 +113,87 @@ func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, 
 		}
 	}
 
-	var vailSudoku sudoku.Sudoku
 	basicSudoku := sudoku.Sudoku{}
 	_ = basicSudoku.Init(simplePuzzle)
-	puzzle := basicSudoku.Answer()
+
+	// the dig hold process been pull away from function generate
+	// because I wan't test each dig hole logic may faster
+	// but only thing useful logic is try more times , now is twice => maxDigHoleProcessTimes := 2
+	var resultSudoku *sudoku.Sudoku
+	maxDigHoleProcessTimes := 2
+	for resultSudoku == nil && maxDigHoleProcessTimes > 0 {
+		resultSudoku = digHoleProcess(basicSudoku, digHoleTotal)
+		maxDigHoleProcessTimes--
+		if resultSudoku != nil {
+			break
+		}
+	}
+
+	if *done {
+		// the work is done , don't need to check and send channel
+		return
+	}
+
+	if resultSudoku == nil {
+		// add job counter
+		jobCount++
+		generate(sudokuCh, signal, digHoleTotal, done, jobCount)
+		return
+	}
+
+	*done = true
+	doneAndCloseChannel(resultSudoku, signal, sudokuCh)
+
+}
+
+func doneAndCloseChannel(resultSudoku *sudoku.Sudoku, signal chan int, sudokuCh chan<- sudoku.Sudoku) {
+	_, signalIsOpen := <-signal
+	if signalIsOpen {
+		sudokuCh <- *resultSudoku
+		close(signal)
+		close(sudokuCh)
+	}
+}
+
+// dig hole process logic
+func digHoleProcess(basicSudoku sudoku.Sudoku, digHoleTotal int) *sudoku.Sudoku {
+	var vailSudoku *sudoku.Sudoku
+	var resultSudoku *sudoku.Sudoku
+	puzzle := basicSudoku.Solution()
 	holeCounter := 0
 	candidateHoles := randCandidateHoles()
 	for _, hoIndex := range candidateHoles {
+		holeCounter++
 		old := puzzle[hoIndex]
 		puzzle[hoIndex] = EMPTY
-		vailSudoku = sudoku.Sudoku{}
-		if err := vailSudoku.StrictInit(puzzle); err != nil {
+		vailSudoku = sudokuVerifyWithDfs(&puzzle)
+		if vailSudoku == nil {
 			puzzle[hoIndex] = old
-			continue
+			holeCounter--
+		} else {
+			resultSudoku = vailSudoku
 		}
-		holeCounter++
-		if holeCounter >= digHoleTotal {
-			_, signalIsOpen := <-signal
-			if signalIsOpen {
-				*done = true
-				sudokuCh <- vailSudoku
-				close(signal)
-				close(sudokuCh)
-			}
-			return
+
+		if holeCounter >= digHoleTotal && resultSudoku != nil {
+			return resultSudoku
 		}
 	}
-	if !*done {
-		generate(sudokuCh, signal, digHoleTotal, done)
+
+	return nil
+}
+
+// this function use dfs algorithm verify with strict mode
+// diffen way is sudokuVerifyWithDlx , that use [dlx] to solve puzzle,
+// seem [dlx] way is faster solve very hard puzzle , but can't verify is one-solution puzzle
+// if use [dlx] way to solve puzzle and use [dfs] to verify that will take more time
+// so I remove sudokuVerifyWithDlx function , function just like :
+// return sudoku.DLXSolve(*puzzle) == sudoku.SudokuGo2str(&solution)
+func sudokuVerifyWithDfs(puzzle *[81]int8) *sudoku.Sudoku {
+	vailSudoku := sudoku.Sudoku{}
+	if err := vailSudoku.StrictInit(*puzzle); err != nil {
+		return nil
 	}
+	return &vailSudoku
 }
 
 func remove(slice []int, s int) []int {
@@ -152,12 +217,10 @@ func randCandidateHoles() []int {
 		fixedPositionByZones[i] = index
 	}
 	for i, fixedPosition := range fixedPositionByZones {
-		//fmt.Printf("fixedPosition : %v , i : %v len(arr) : %v \n", fixedPosition, i, len(arr))
 		arr = remove(arr, fixedPosition-i)
 	}
 	rand.Shuffle(len(arr), func(i, j int) {
 		arr[i], arr[j] = arr[j], arr[i]
 	})
-
 	return arr
 }
