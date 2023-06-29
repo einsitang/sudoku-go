@@ -27,7 +27,6 @@ func TestGenerate(t *testing.T) {
 
 func BenchmarkGenerateLevelExpert(b *testing.B) {
 	b.Logf("BenchmarkGenerateLevelExpert N : %v", b.N)
-	// cpu profile code
 	beginTime := time.Now()
 	for i := 0; i < b.N; i++ {
 		_, err := Generate(LEVEL_EXPERT)
