@@ -83,6 +83,7 @@ func doGenerate(digHoleTotal int, concurrency int) (_sudoku sudoku.Sudoku, err e
 
 func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, done *bool, jobCount int) {
 	if *done {
+		// the work is done , don't need to check and send channel
 		return
 	}
 
@@ -94,24 +95,7 @@ func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, 
 		jobCount = 1
 	}
 
-	var simplePuzzle [81]int8
-
-	// init simple puzzle
-	nums := sudoku.ShuffleNumbers()
-	ni := 0
-	for i := range simplePuzzle {
-		_, _, zone := sudoku.Location(i)
-		simplePuzzle[i] = EMPTY
-
-		// choose center zone to random fill
-		if zone == 4 {
-			simplePuzzle[i] = (int8)(nums[ni] + 1)
-			ni++
-		} else {
-			simplePuzzle[i] = EMPTY
-		}
-	}
-
+	simplePuzzle := initSimplePuzzle()
 	basicSudoku := sudoku.Sudoku{}
 	_ = basicSudoku.Init(simplePuzzle)
 
@@ -128,11 +112,6 @@ func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, 
 		}
 	}
 
-	if *done {
-		// the work is done , don't need to check and send channel
-		return
-	}
-
 	if resultSudoku == nil {
 		// add job counter
 		jobCount++
@@ -143,6 +122,26 @@ func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, 
 	*done = true
 	doneAndCloseChannel(resultSudoku, signal, sudokuCh)
 
+}
+
+func initSimplePuzzle() [81]int8 {
+	// init simple puzzle
+	var simplePuzzle [81]int8
+	nums := sudoku.ShuffleNumbers()
+	ni := 0
+	for i := range simplePuzzle {
+		_, _, zone := sudoku.Location(i)
+		simplePuzzle[i] = EMPTY
+
+		// choose center zone to random fill
+		if zone == 4 {
+			simplePuzzle[i] = (int8)(nums[ni] + 1)
+			ni++
+		} else {
+			simplePuzzle[i] = EMPTY
+		}
+	}
+	return simplePuzzle
 }
 
 func doneAndCloseChannel(resultSudoku *sudoku.Sudoku, signal chan int, sudokuCh chan<- sudoku.Sudoku) {

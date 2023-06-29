@@ -10,7 +10,7 @@ const (
 	CONST_MEDIUM_HOLES = 45
 	CONST_HARD_HOLES   = 50
 	CONST_EXPERT_HOLES = 56
-	// ⚠️ hell is realy hard and very consumptive performance ⚠️
+	// ⚠️ hell is really hard and very consumptive performance ⚠️
 	CONST_HELL_HOLES = 60
 )
 
