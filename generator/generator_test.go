@@ -10,7 +10,7 @@ import (
 func TestGenerate(t *testing.T) {
 
 	beginTime := time.Now()
-	sudoku, err := Generate(LEVEL_EXPERT)
+	sudoku, err := Generate(LEVEL_HELL)
 	if err != nil {
 		t.Fatal(err)
 	}

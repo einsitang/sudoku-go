@@ -29,7 +29,7 @@ const (
 
 var (
 	// generate job limit times
-	maxJobCount = 50 * runtime.NumCPU()
+	maxJobCount = 1 * runtime.NumCPU()
 )
 
 // Generate
@@ -43,7 +43,7 @@ func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
 		n = MIN_CONCURRENCY
 	}
 
-	digHoleTotal := sudoku.CONST_EASY_HOLES
+	var digHoleTotal uint8
 	switch level {
 	case LEVEL_EASY:
 		digHoleTotal = sudoku.CONST_EASY_HOLES
@@ -67,7 +67,7 @@ func Generate(level int) (_sudoku sudoku.Sudoku, err error) {
 	return doGenerate(digHoleTotal, n)
 }
 
-func doGenerate(digHoleTotal int, concurrency int) (_sudoku sudoku.Sudoku, err error) {
+func doGenerate(digHoleTotal uint8, concurrency int) (_sudoku sudoku.Sudoku, err error) {
 
 	sudokuCh := make(chan sudoku.Sudoku)
 	// signal channel to make sure other goroutine will not block
@@ -81,7 +81,7 @@ func doGenerate(digHoleTotal int, concurrency int) (_sudoku sudoku.Sudoku, err e
 	return
 }
 
-func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal int, done *bool, jobCount int) {
+func generate(sudokuCh chan<- sudoku.Sudoku, signal chan int, digHoleTotal uint8, done *bool, jobCount int) {
 	if *done {
 		// the work is done , don't need to check and send channel
 		return
@@ -154,11 +154,11 @@ func doneAndCloseChannel(resultSudoku *sudoku.Sudoku, signal chan int, sudokuCh 
 }
 
 // dig hole process logic
-func digHoleProcess(basicSudoku sudoku.Sudoku, digHoleTotal int) *sudoku.Sudoku {
+func digHoleProcess(basicSudoku sudoku.Sudoku, digHoleTotal uint8) *sudoku.Sudoku {
 	var vailSudoku *sudoku.Sudoku
 	var resultSudoku *sudoku.Sudoku
 	puzzle := basicSudoku.Solution()
-	holeCounter := 0
+	var holeCounter uint8 = 0
 	candidateHoles := randCandidateHoles()
 	for _, hoIndex := range candidateHoles {
 		holeCounter++
