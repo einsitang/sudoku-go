@@ -106,9 +106,9 @@ make **five** level random one-solution sudoku puzzle function `generator.Genera
 import generator "github.com/einsitang/sudoku-go/generator"
 
 func main(){
-  sudoku1, err := generator.Generate(generator.LEVEL_EXPERT)
+  sudoku, err := generator.Generate(generator.LEVEL_EXPERT)
   if err != nil {
-    fmt.Println(err1)
+    fmt.Println(err)
   }
 }
 ```
