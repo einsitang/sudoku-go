@@ -115,7 +115,7 @@ func main(){
 
 ## More
 
-with any idea welcome open issue to make me know
+with any idea welcome open issue to let me know
 
 if you want same project with other language like js / dart and flutter app , here they are :
 - [einsitang/sudoku-nodejs](https://github.com/einsitang/sudoku-nodejs)
