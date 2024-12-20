@@ -6,9 +6,9 @@ package core
 
 import "fmt"
 
-func sudokuGoPuzzle2str(puzzle *[81]int8) string {
+func sudokuGoPuzzle2str(puzzle [81]int8) string {
 	puzzleStr := ""
-	for _, p := range *puzzle {
+	for _, p := range puzzle {
 		if p == -1 {
 			puzzleStr = puzzleStr + "."
 		} else {
@@ -18,7 +18,7 @@ func sudokuGoPuzzle2str(puzzle *[81]int8) string {
 	return puzzleStr
 }
 
-func SudokuGo2str(sudoku *[81]int8) string {
+func SudokuGo2str(sudoku [81]int8) string {
 	return sudokuGoPuzzle2str(sudoku)
 }
 
@@ -34,7 +34,7 @@ func Str2sudokuGo(sudoku *string) (sudokuGo [81]int8) {
 }
 
 func DLXSolve(puzzle [81]int8) string {
-	return solve(sudokuGoPuzzle2str(&puzzle))
+	return solve(sudokuGoPuzzle2str(puzzle))
 }
 
 // solve puzzle in 81 character string format.

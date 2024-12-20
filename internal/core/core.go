@@ -6,8 +6,30 @@ import (
 	"log"
 	"time"
 )
+type Sudoku interface {
+	Puzzle() [81]int8
+	Answer() [81]int8
+	Solution() [81]int8
+	Debug()
+}
 
-type Sudoku struct {
+func Solve(puzzle [81]int8, option *SudokuOption) (Sudoku, error) {
+	var err error
+	_sudoku := &sudoku{option:option}
+	if option.DLXMode {
+		err = _sudoku.DLXInit(puzzle)
+	} else {
+		err = _sudoku.Init(puzzle)
+	}
+	return _sudoku, err
+}
+
+type SudokuOption struct {
+	IsOneSolutionMode bool
+	DLXMode           bool
+}
+
+type sudoku struct {
 	puzzle            [81]int8 `desc:"sudoku puzzle"`
 	answer            [81]int8 `desc:"complete sudoku answer data"`
 	rows              [9][9]bool
@@ -17,28 +39,28 @@ type Sudoku struct {
 	endTime           time.Time
 	nums              [9]int
 	finishes          int
-	isOneSolutionMode bool
+	option 			  *SudokuOption
 }
 
-func (_sudoku Sudoku) Puzzle() [81]int8 {
+func (_sudoku sudoku) Puzzle() [81]int8 {
 	return _sudoku.puzzle
 }
 
 // Deprecated : seem answer is not explicit api , change to Solution
-func (_sudoku Sudoku) Answer() [81]int8 {
+func (_sudoku sudoku) Answer() [81]int8 {
 	return _sudoku.answer
 }
 
-func (_sudoku Sudoku) Solution() [81]int8 {
+func (_sudoku sudoku) Solution() [81]int8 {
 	return _sudoku.answer
 }
 
-func (_sudoku *Sudoku) StrictInit(puzzle [81]int8) error {
-	_sudoku.isOneSolutionMode = true
+func (_sudoku *sudoku) StrictInit(puzzle [81]int8) error {
+	_sudoku.option.IsOneSolutionMode = true
 	return _sudoku.Init(puzzle)
 }
 
-func (_sudoku *Sudoku) DLXInit(puzzle [81]int8) error {
+func (_sudoku *sudoku) DLXInit(puzzle [81]int8) error {
 	fmt.Println("use [dlx] caculate it : this is not ensure one-solution sudoku")
 	_sudoku.beginTime = time.Now()
 	_sudoku.puzzle = puzzle
@@ -53,7 +75,7 @@ func (_sudoku *Sudoku) DLXInit(puzzle [81]int8) error {
 	return nil
 }
 
-func (_sudoku *Sudoku) Init(puzzle [81]int8) error {
+func (_sudoku *sudoku) Init(puzzle [81]int8) error {
 
 	// initialize
 	_sudoku.beginTime = time.Now()
@@ -86,7 +108,7 @@ func (_sudoku *Sudoku) Init(puzzle [81]int8) error {
 	return nil
 }
 
-func (_sudoku *Sudoku) calculate() (err error) {
+func (_sudoku *sudoku) calculate() (err error) {
 
 	_answer := &_sudoku.answer
 	firstCheckPoint := 0
@@ -97,7 +119,7 @@ func (_sudoku *Sudoku) calculate() (err error) {
 		}
 	}
 
-	if _sudoku.isOneSolutionMode {
+	if _sudoku.option.IsOneSolutionMode {
 		_sudoku.dsfOneSolutionCalculate(*_sudoku, firstCheckPoint)
 		if _sudoku.finishes > 1 {
 			err = errors.New("puzzle is not one-solution sudoku")
@@ -119,14 +141,14 @@ func (_sudoku *Sudoku) calculate() (err error) {
 	return
 }
 
-func (_sudoku *Sudoku) Debug() {
+func (_sudoku *sudoku) Debug() {
 	log.Println("--- debug sudoku info ---")
 	log.Print("PUZZLE : \n", _sudoku.puzzleFormat())
 	log.Print("SOLUTION : \n", _sudoku.answerFormat())
 	log.Printf("solved the puzzle with total time : %d ms", _sudoku.endTime.Sub(_sudoku.beginTime).Milliseconds())
 }
 
-func backtrackCalculate(_sudoku *Sudoku, index int) bool {
+func backtrackCalculate(_sudoku *sudoku, index int) bool {
 
 	if index >= 81 {
 		return true
@@ -161,7 +183,7 @@ func backtrackCalculate(_sudoku *Sudoku, index int) bool {
 
 }
 
-func (_self *Sudoku) dsfOneSolutionCalculate(_sudoku Sudoku, index int) {
+func (_self *sudoku) dsfOneSolutionCalculate(_sudoku sudoku, index int) {
 
 	if _self.finishes > 1 {
 		return
@@ -206,12 +228,12 @@ func (_self *Sudoku) dsfOneSolutionCalculate(_sudoku Sudoku, index int) {
 	}
 }
 
-func (_sudoku *Sudoku) puzzleFormat() string {
+func (_sudoku *sudoku) puzzleFormat() string {
 	_puzzle := _sudoku.puzzle
 	return sudokuFormat(_puzzle)
 }
 
-func (_sudoku *Sudoku) answerFormat() string {
+func (_sudoku *sudoku) answerFormat() string {
 	_answer := _sudoku.answer
 	return sudokuFormat(_answer)
 }

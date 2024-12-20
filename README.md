@@ -15,7 +15,7 @@ opensource sudoku solver and puzzle generator `golang` library
 
 ## 安装 install
 
-`go get github.com/einsitang/sudoku-go@latest`
+`go get github.com/einsitang/sudoku-go/v2@latest`
 
 ### 计算器 solver
 
@@ -25,21 +25,10 @@ input `[81]int8` array and return a `sudoku.Sudoku`structure with full answer
 
 use `-1` to mark the position mean **computation item**
 
-#### Init
-
-`Init` use backtrack algorithm to solve puzzle , no matter is many solution or not , find one then return
-
-#### StrictInit
-
-`StrictInit` is only can solve one-solution sudoku puzzle , more then one will return error message : puzzle is not one-solution sudoku , if you only want solve sudoku puzzle , just use `Init`
-
-#### DLXInit
-
-`DLXInit` is use DLX algorithm to solve puzzle , only for very hard puzzle will faster , recommend use `Init` is well , and they not verify one-solution
 
 ```golang
 // test case : core_test.go
-import sudoku "github.com/einsitang/sudoku-go/core"
+import sudoku "github.com/einsitang/sudoku-go/v2/sudoku"
 
 func main(){
  puzzle := [81]int8{
@@ -56,16 +45,16 @@ func main(){
   -1, 6, -1 /* */, -1, -1, 9 /* */, -1, -1, -1,
  }
 
-  _sudoku := sudoku.Sudoku{}
+  _sudoku,err := sudoku.Solve(puzzle)
 
   // with [DFS] algorithm solve puzzle  #recommend#
-  err := _sudoku.Init(puzzle)
+  // _sudoku,err := sudoku.Solve(puzzle)
 
   // only solve with one-solution puzzle use this function
-  // err := _sudoku.StrictInit(puzzle)
+  // _sudoku,err := sudoku.Solve(puzzle,sudoku.WithStrict())
 
   // with [DLX] algorithm solve puzzle 
-  // err := _sudoku.DLXInit(puzzle)
+  // _sudoku,err := sudoku.Solve(puzzle,sudoku.WithDLX())
   
   if err != nil {
     fmt.Println(err)
@@ -79,6 +68,19 @@ func main(){
  }
 }
 ```
+
+#### default solve
+
+use backtrack algorithm to solve puzzle , no matter is many solution or not , find one then return
+
+#### solve WithStrict
+
+`WithStrict` is only can solve one-solution sudoku puzzle , more then one will return error message : puzzle is not one-solution sudoku , if you only want solve sudoku puzzle , just omit this parameter
+
+#### solve WithDLX
+
+`WithDLX` is use DLX algorithm to solve puzzle , only for very hard puzzle will faster , recommend use default way is well , and they not verify one-solution
+
 
 ### 生成器 generator
 
@@ -103,10 +105,10 @@ make **five** level random one-solution sudoku puzzle function `generator.Genera
 
 ```golang
 // test case : generator_test.go
-import generator "github.com/einsitang/sudoku-go/generator"
+import sudoku "github.com/einsitang/sudoku-go/v2/sudoku"
 
 func main(){
-  sudoku, err := generator.Generate(generator.LEVEL_EXPERT)
+  _sudoku, err := sudoku.Generate(sudoku.LEVEL_EXPERT)
   if err != nil {
     fmt.Println(err)
   }

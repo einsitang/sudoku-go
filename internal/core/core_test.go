@@ -27,32 +27,29 @@ func puzzles() [][81]int8 {
 
 func dfsSolver(puzzle [81]int8, t *testing.T) {
 	beginTime := time.Now()
-	_sudoku := Sudoku{}
-	err := _sudoku.Init(puzzle)
+	_sudoku, err := Solve(puzzle,&SudokuOption{})
 	if err != nil {
 		t.Logf("❌[dfs] ..")
 	}
 	endTime := time.Now()
 	subTime := endTime.Sub(beginTime)
-	t.Logf("solution : %v", sudokuGoPuzzle2str(&_sudoku.answer))
+	t.Logf("solution : %v", sudokuGoPuzzle2str(_sudoku.Solution()))
 	t.Logf("total time : %v'ms | %v'ns [dfs]			with puzzle \n%v", subTime.Milliseconds(), subTime.Nanoseconds(), puzzle)
 }
 
 func dfsWithStrictSolver(puzzle [81]int8, t *testing.T) {
 	beginTime := time.Now()
-	_sudoku := Sudoku{}
-	err := _sudoku.StrictInit(puzzle)
+	_sudoku, err := Solve(puzzle,&SudokuOption{IsOneSolutionMode: true})
 	if err != nil {
 		t.Logf("❌[dfs-Strict] ..")
 	}
 	endTime := time.Now()
 	subTime := endTime.Sub(beginTime)
-	t.Logf("solution : %v", sudokuGoPuzzle2str(&_sudoku.answer))
+	t.Logf("solution : %v", sudokuGoPuzzle2str(_sudoku.Solution()))
 	t.Logf("total time : %v'ms | %v'ns [dfs-Strict]		with puzzle \n%v", subTime.Milliseconds(), subTime.Nanoseconds(), puzzle)
 }
 
 func dlxSolver(puzzle [81]int8, t *testing.T) {
-	// puzzleStr := puzzle2str(puzzle)
 	beginTime := time.Now()
 	solution := DLXSolve(puzzle)
 	endTime := time.Now()
@@ -78,15 +75,14 @@ func TestSolveHellLevelPuzzle(t *testing.T) {
 	hellPuzzle := [81]int8{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 3, -1, -1, 4, 5, -1, 9, 7, 1, -1, -1, -1, -1, -1, 6, 1, -1, -1, 6, -1, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 3, -1, 6, -1, -1, -1, -1, -1, -1, 9, -1, -1, -1, -1, -1, -1, 1, 9, -1, -1, 2, -1, 3, -1, 4, -1, -1, -1, -1, 7, -1, -1, -1, 5, 8, -1, -1, -1}
 	// hellPuzzleHard := SudokuGo2str(&hellPuzzle)
 	beginTime := time.Now()
-	_sudoku := Sudoku{}
-	_sudoku.Init(hellPuzzle)
+	_sudoku, _ := Solve(hellPuzzle,&SudokuOption{})
+	_ = _sudoku
 	endTime := time.Now()
 	t.Logf("dfs total time : %v'ms [dfs(maybe not!!!)]", endTime.Sub(beginTime).Milliseconds())
 
 	beginTime = time.Now()
-	_sudoku = Sudoku{}
-	solution := _sudoku.DLXInit(hellPuzzle)
-	t.Logf("solution : %v", solution)
+	_sudoku, _ = Solve(hellPuzzle,&SudokuOption{DLXMode:true})
+	t.Logf("solution : %v", _sudoku.Solution())
 	endTime = time.Now()
 	t.Logf("dlx total time : %v'ms [dlx]", endTime.Sub(beginTime).Milliseconds())
 }
@@ -157,11 +153,10 @@ func getSudoku(isStrictMode bool) (_sudoku Sudoku, err error) {
 		strs = append(strs, strconv.Itoa((int)(num)))
 	}
 	fmt.Printf("%v\n", strings.Join(strs, ""))
-	_sudoku = Sudoku{}
 	if isStrictMode {
-		err = _sudoku.StrictInit(puzzle)
+		_sudoku, err = Solve(puzzle,&SudokuOption{IsOneSolutionMode:true})
 	} else {
-		err = _sudoku.Init(puzzle)
+		_sudoku, err = Solve(puzzle,&SudokuOption{})
 	}
 
 	return
