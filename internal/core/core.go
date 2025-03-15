@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 )
+
 type Sudoku interface {
 	Puzzle() [81]int8
 	Answer() [81]int8
@@ -15,7 +16,7 @@ type Sudoku interface {
 
 func Solve(puzzle [81]int8, option *SudokuOption) (Sudoku, error) {
 	var err error
-	_sudoku := &sudoku{option:option}
+	_sudoku := &sudoku{option: option}
 	if option.DLXMode {
 		err = _sudoku.DLXInit(puzzle)
 	} else {
@@ -30,16 +31,16 @@ type SudokuOption struct {
 }
 
 type sudoku struct {
-	puzzle            [81]int8 `desc:"sudoku puzzle"`
-	answer            [81]int8 `desc:"complete sudoku answer data"`
-	rows              [9][9]bool
-	cells             [9][9]bool
-	zones             [9][9]bool
-	beginTime         time.Time
-	endTime           time.Time
-	nums              [9]int
-	finishes          int
-	option 			  *SudokuOption
+	puzzle    [81]int8 `desc:"sudoku puzzle"`
+	answer    [81]int8 `desc:"complete sudoku answer data"`
+	rows      [9][9]bool
+	cells     [9][9]bool
+	zones     [9][9]bool
+	beginTime time.Time
+	endTime   time.Time
+	nums      [9]int
+	finishes  int
+	option    *SudokuOption
 }
 
 func (_sudoku sudoku) Puzzle() [81]int8 {
@@ -61,11 +62,11 @@ func (_sudoku *sudoku) StrictInit(puzzle [81]int8) error {
 }
 
 func (_sudoku *sudoku) DLXInit(puzzle [81]int8) error {
-	fmt.Println("use [dlx] caculate it : this is not ensure one-solution sudoku")
+	// fmt.Println("use [dlx] caculate it : this is not ensure one-solution sudoku")
 	_sudoku.beginTime = time.Now()
 	_sudoku.puzzle = puzzle
-	solutionStr := DLXSolve(puzzle)
-	if len(solutionStr) != 81 {
+	solutionStr, solved := DLXSolve(puzzle)
+	if !solved {
 		return errors.New("puzzle can not be resolve")
 	}
 	_sudoku.endTime = time.Now()

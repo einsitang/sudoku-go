@@ -74,14 +74,14 @@ func doGenerate(digHoleTotal uint8, concurrency int) (_sudoku core.Sudoku, err e
 	signal := make(chan int)
 	done := false
 	for i := 0; i < concurrency; i++ {
-		go generate(sudokuCh, signal, digHoleTotal, &done, 1)
+		go generate(i, sudokuCh, signal, digHoleTotal, &done, 1)
 	}
 	signal <- 1
 	_sudoku = <-sudokuCh
 	return
 }
 
-func generate(sudokuCh chan<- core.Sudoku, signal chan int, digHoleTotal uint8, done *bool, jobCount int) {
+func generate(taskSerial int, sudokuCh chan<- core.Sudoku, signal chan int, digHoleTotal uint8, done *bool, jobCount int) {
 	if *done {
 		// the work is done , don't need to check and send channel
 		return
@@ -91,12 +91,13 @@ func generate(sudokuCh chan<- core.Sudoku, signal chan int, digHoleTotal uint8, 
 		// reduce the difficulty
 		oldDigHoleTotal := digHoleTotal
 		digHoleTotal -= 2
-		fmt.Printf("generate times : %d / %d(MAX) reduce the difficulty %d -> %d \n", jobCount, maxJobCount, oldDigHoleTotal, digHoleTotal)
+		fmt.Printf("%d :: generate times : %d / %d(MAX) reduce the difficulty %d -> %d \n", taskSerial, jobCount, maxJobCount, oldDigHoleTotal, digHoleTotal)
 		jobCount = 1
 	}
 
 	simplePuzzle := initSimplePuzzle()
-	basicSudoku, _ := core.Solve(simplePuzzle,&core.SudokuOption{})
+	basicSudoku, _ := core.Solve(simplePuzzle, &core.SudokuOption{DLXMode: true})
+	// basicSudoku, _ := core.Solve(simplePuzzle, &core.SudokuOption{})
 
 	// the dig hold process been pull away from function generate
 	// because I wan't test each dig hole logic may faster
@@ -114,7 +115,7 @@ func generate(sudokuCh chan<- core.Sudoku, signal chan int, digHoleTotal uint8, 
 	if resultSudoku == nil {
 		// add job counter
 		jobCount++
-		generate(sudokuCh, signal, digHoleTotal, done, jobCount)
+		generate(taskSerial, sudokuCh, signal, digHoleTotal, done, jobCount)
 		return
 	}
 
@@ -146,16 +147,16 @@ func initSimplePuzzle() [81]int8 {
 func doneAndCloseChannel(resultSudoku *core.Sudoku, signal chan int, sudokuCh chan<- core.Sudoku) {
 	_, signalIsOpen := <-signal
 	if signalIsOpen {
-		sudokuCh <- *resultSudoku
 		close(signal)
-		close(sudokuCh)
+		sudokuCh <- *resultSudoku
+		defer close(sudokuCh)
 	}
 }
 
 // dig hole process logic
 func digHoleProcess(basicSudoku core.Sudoku, digHoleTotal uint8) *core.Sudoku {
-	var vailSudoku *core.Sudoku
-	var resultSudoku *core.Sudoku
+	// var vailSudoku *core.Sudoku
+	// var resultSudoku *core.Sudoku
 	puzzle := basicSudoku.Solution()
 	var holeCounter uint8 = 0
 	candidateHoles := randCandidateHoles()
@@ -163,17 +164,31 @@ func digHoleProcess(basicSudoku core.Sudoku, digHoleTotal uint8) *core.Sudoku {
 		holeCounter++
 		old := puzzle[hoIndex]
 		puzzle[hoIndex] = EMPTY
-		vailSudoku = sudokuVerifyWithDfs(&puzzle)
-		if vailSudoku == nil {
-			puzzle[hoIndex] = old
+
+		// DLX
+		solution, resolve := sudokuVerifyWithDLX(&puzzle)
+		if !resolve {
 			holeCounter--
-		} else {
-			resultSudoku = vailSudoku
+			puzzle[hoIndex] = old
 		}
 
-		if holeCounter >= digHoleTotal && resultSudoku != nil {
-			return resultSudoku
+		if holeCounter >= digHoleTotal {
+			_sudoku, _ := core.Solve(core.Str2sudokuGo(&solution), &core.SudokuOption{})
+			return &_sudoku
 		}
+
+		// DFS
+		// vailSudoku = sudokuVerifyWithDfs(&puzzle)
+		// if vailSudoku == nil {
+		// 	puzzle[hoIndex] = old
+		// 	holeCounter--
+		// } else {
+		// 	resultSudoku = vailSudoku
+		// }
+
+		// if holeCounter >= digHoleTotal && resultSudoku != nil {
+		// 	return resultSudoku
+		// }
 	}
 
 	return nil
@@ -186,11 +201,20 @@ func digHoleProcess(basicSudoku core.Sudoku, digHoleTotal uint8) *core.Sudoku {
 // so I remove sudokuVerifyWithDlx function , function just like :
 // return sudoku.DLXSolve(*puzzle) == sudoku.SudokuGo2str(&solution)
 func sudokuVerifyWithDfs(puzzle *[81]int8) *core.Sudoku {
-	vailSudoku, err := core.Solve(*puzzle, &core.SudokuOption{IsOneSolutionMode:true})
+	vailSudoku, err := core.Solve(*puzzle, &core.SudokuOption{IsOneSolutionMode: true})
 	if err != nil {
 		return nil
 	}
 	return &vailSudoku
+}
+
+func sudokuVerifyWithDLX(puzzle *[81]int8) (string, bool) {
+	soluion, solve := core.DLXStrictSolve(*puzzle)
+	// vailSudoku, err := core.DLXStrictSolve(*puzzle, &core.SudokuOption{DLXMode: true})
+	// if err != nil {
+	// 	return nil
+	// }
+	return soluion, solve
 }
 
 func remove(slice []int, s int) []int {

@@ -4,7 +4,9 @@
 // and this algorithm can't verify one-soluion sudoku , so better not use , unless U ensure only solve puzzle without one-solution demand
 package core
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func sudokuGoPuzzle2str(puzzle [81]int8) string {
 	puzzleStr := ""
@@ -33,14 +35,28 @@ func Str2sudokuGo(sudoku *string) (sudokuGo [81]int8) {
 	return
 }
 
-func DLXSolve(puzzle [81]int8) string {
+func DLXSolve(puzzle [81]int8) (string, bool) {
 	return solve(sudokuGoPuzzle2str(puzzle))
+}
+
+func DLXSolve2(puzzle [81]int8) (string, bool) {
+	return solve2(sudokuGoPuzzle2str(puzzle))
+}
+
+func DLXStrictSolve(puzzle [81]int8) (string, bool) {
+	solution1, resolve1 := solve(sudokuGoPuzzle2str(puzzle))
+	solution2, resolve2 := solve2(sudokuGoPuzzle2str(puzzle))
+	if resolve1 && resolve2 && solution1 == solution2 {
+		return solution1, true
+	} else {
+		return solution2, false
+	}
 }
 
 // solve puzzle in 81 character string format.
 // if solved, result is 81 character string.
 // if not solved, result is the empty string.
-func solve(u string) string {
+func solve(u string) (string, bool) {
 	// construct an dlx object with 324 constraint columns.
 	// other than the number 324, this is not specific to sudoku.
 	d := newDlxObject(324)
@@ -61,9 +77,38 @@ func solve(u string) string {
 		}
 	}
 	// run dlx.  not sudoku specific.
-	d.search()
+	r := d.search()
+	// log.Printf("dlx--> r : %v", r)
 	// extract the sudoku-specific 81 character result from the dlx solution.
-	return d.text()
+	return d.text(), r
+}
+
+// test
+func solve2(u string) (string, bool) {
+	// construct an dlx object with 324 constraint columns.
+	// other than the number 324, this is not specific to sudoku.
+	d := newDlxObject(324)
+	// now add constraints that define sudoku rules.
+	for r, i := 0, 0; r < 9; r++ {
+		for c := 0; c < 9; c, i = c+1, i+1 {
+			b := r/3*3 + c/3
+			n := int(u[i] - '1')
+			if n >= 0 && n < 9 {
+				d.addRow([]int{i, 81 + r*9 + n, 162 + c*9 + n,
+					243 + b*9 + n})
+			} else {
+				for n = 8; n >= 0; n-- {
+					d.addRow([]int{i, 81 + r*9 + n, 162 + c*9 + n,
+						243 + b*9 + n})
+				}
+			}
+		}
+	}
+	// run dlx.  not sudoku specific.
+	r := d.search()
+	// log.Printf("dlx--> r : %v", r)
+	// extract the sudoku-specific 81 character result from the dlx solution.
+	return d.text(), r
 }
 
 // Knuth's data object
