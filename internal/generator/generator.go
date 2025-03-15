@@ -96,8 +96,8 @@ func generate(taskSerial int, sudokuCh chan<- core.Sudoku, signal chan int, digH
 	}
 
 	simplePuzzle := initSimplePuzzle()
-	basicSudoku, _ := core.Solve(simplePuzzle, &core.SudokuOption{DLXMode: true})
-	// basicSudoku, _ := core.Solve(simplePuzzle, &core.SudokuOption{})
+	// basicSudoku, _ := core.Solve(simplePuzzle, &core.SudokuOption{DLXMode: true})
+	basicSudoku, _ := core.Solve(simplePuzzle, &core.SudokuOption{})
 
 	// the dig hold process been pull away from function generate
 	// because I wan't test each dig hole logic may faster
@@ -155,8 +155,8 @@ func doneAndCloseChannel(resultSudoku *core.Sudoku, signal chan int, sudokuCh ch
 
 // dig hole process logic
 func digHoleProcess(basicSudoku core.Sudoku, digHoleTotal uint8) *core.Sudoku {
-	// var vailSudoku *core.Sudoku
-	// var resultSudoku *core.Sudoku
+	var vailSudoku *core.Sudoku
+	var resultSudoku *core.Sudoku
 	puzzle := basicSudoku.Solution()
 	var holeCounter uint8 = 0
 	candidateHoles := randCandidateHoles()
@@ -165,56 +165,28 @@ func digHoleProcess(basicSudoku core.Sudoku, digHoleTotal uint8) *core.Sudoku {
 		old := puzzle[hoIndex]
 		puzzle[hoIndex] = EMPTY
 
-		// DLX
-		solution, resolve := sudokuVerifyWithDLX(&puzzle)
-		if !resolve {
-			holeCounter--
+		vailSudoku = sudokuVerify(&puzzle)
+		if vailSudoku == nil {
 			puzzle[hoIndex] = old
+			holeCounter--
+		} else {
+			resultSudoku = vailSudoku
 		}
 
-		if holeCounter >= digHoleTotal {
-			_sudoku, _ := core.Solve(core.Str2sudokuGo(&solution), &core.SudokuOption{})
-			return &_sudoku
+		if holeCounter >= digHoleTotal && resultSudoku != nil {
+			return resultSudoku
 		}
 
-		// DFS
-		// vailSudoku = sudokuVerifyWithDfs(&puzzle)
-		// if vailSudoku == nil {
-		// 	puzzle[hoIndex] = old
-		// 	holeCounter--
-		// } else {
-		// 	resultSudoku = vailSudoku
-		// }
-
-		// if holeCounter >= digHoleTotal && resultSudoku != nil {
-		// 	return resultSudoku
-		// }
 	}
 
 	return nil
 }
-
-// this function use dfs algorithm verify with strict mode
-// diffen way is sudokuVerifyWithDlx , that use [dlx] to solve puzzle,
-// seem [dlx] way is faster solve very hard puzzle , but can't verify is one-solution puzzle
-// if use [dlx] way to solve puzzle and use [dfs] to verify that will take more time
-// so I remove sudokuVerifyWithDlx function , function just like :
-// return sudoku.DLXSolve(*puzzle) == sudoku.SudokuGo2str(&solution)
-func sudokuVerifyWithDfs(puzzle *[81]int8) *core.Sudoku {
+func sudokuVerify(puzzle *[81]int8) *core.Sudoku {
 	vailSudoku, err := core.Solve(*puzzle, &core.SudokuOption{IsOneSolutionMode: true})
 	if err != nil {
 		return nil
 	}
 	return &vailSudoku
-}
-
-func sudokuVerifyWithDLX(puzzle *[81]int8) (string, bool) {
-	soluion, solve := core.DLXStrictSolve(*puzzle)
-	// vailSudoku, err := core.DLXStrictSolve(*puzzle, &core.SudokuOption{DLXMode: true})
-	// if err != nil {
-	// 	return nil
-	// }
-	return soluion, solve
 }
 
 func remove(slice []int, s int) []int {

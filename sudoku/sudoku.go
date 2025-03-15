@@ -23,9 +23,12 @@ func WithStrict() OptionFunc {
 	}
 }
 
+// Sudoku will calculate the difficulty of the puzzle
+// and automatically select which algorithm to use for calculation.
+//
+// Deprecated: There is no need to specifically establish the DLX mode.
 func WithDLX() OptionFunc {
 	return func(option *core.SudokuOption) {
-		option.IsOneSolutionMode = false
 		option.DLXMode = true
 	}
 }
@@ -36,7 +39,7 @@ func Solve(puzzle [81]int8, opts ...OptionFunc) (core.Sudoku, error) {
 		opt(option)
 	}
 
-	return core.Solve(puzzle,option)
+	return core.Solve(puzzle, option)
 }
 func Generate(level int) (core.Sudoku, error) {
 	return generator.Generate(level)

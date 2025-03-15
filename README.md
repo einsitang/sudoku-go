@@ -79,7 +79,10 @@ use backtrack algorithm to solve puzzle , no matter is many solution or not , fi
 
 #### solve WithDLX
 
-`WithDLX` is use DLX algorithm to solve puzzle , only for very hard puzzle will faster , recommend use default way is well , and they not verify one-solution
+~~`WithDLX` is use DLX algorithm to solve puzzle , only for very hard puzzle will faster , recommend use default way is well , and they not verify one-solution~~
+There is no need to specifically establish the DLX mode.
+
+Sudoku will calculate the difficulty of the puzzle and automatically select which algorithm to use for calculation.
 
 
 ### 生成器 generator
@@ -100,7 +103,7 @@ make **five** level random one-solution sudoku puzzle function `generator.Genera
 
 > "地狱" 难度的数独生成可能会非常慢,因为是数独的生成是完全离线且随机，花费太长时间将会严重耗损计算资源，所以在"地狱"难度耗费一定计算次数后仍然无法输出数独 , 则会降低其初定难度再次生成(大师 < 难度 < "地狱")，从而保证生成器能正常输出数独，因此耗时长度会有较大波动
 > 
-> `LEVE_HELL` will take long time , be carefly using
+> `LEVE_HELL` There is a certain probability that it will take more than 500ms to complete. Be careful, it is using.
 > 
 
 ```golang

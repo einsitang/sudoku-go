@@ -1,6 +1,6 @@
 # Generator Benchmark
 
-command : `go test -bench=. ./generator/* -benchtime=5s`
+command : `go test -bench=. ./internal/generator/* -benchtime=5s`
 
 mix only above level MEDIUM use concurrency `current`
 

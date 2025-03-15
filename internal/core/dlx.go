@@ -1,7 +1,10 @@
 // Copyright 2012 Sonia Keys
 // License MIT: http://www.opensource.org/licenses/MIT
 // it seem DLX algorithm work for very hard(hell mode) puzzle solve is well , but simple puzzle use dfs will better
-// and this algorithm can't verify one-soluion sudoku , so better not use , unless U ensure only solve puzzle without one-solution demand
+// ~~and this algorithm can't verify one-soluion sudoku , so better not use , unless U ensure only solve puzzle without one-solution demand~~
+// puzzle with more then 56 holes , use dlx is better
+// Remind You
+// this algorithm is modified from einsitang , but copyright by Sonia Keys
 package core
 
 import (
@@ -45,6 +48,10 @@ func DLXSolve2(puzzle [81]int8) (string, bool) {
 
 func DLXStrictSolve(puzzle [81]int8) (string, bool) {
 	solution1, resolve1 := solve(sudokuGoPuzzle2str(puzzle))
+	if !resolve1 {
+		return solution1, resolve1
+	}
+	// check again
 	solution2, resolve2 := solve2(sudokuGoPuzzle2str(puzzle))
 	if resolve1 && resolve2 && solution1 == solution2 {
 		return solution1, true
@@ -83,7 +90,7 @@ func solve(u string) (string, bool) {
 	return d.text(), r
 }
 
-// test
+// add constraints in an alternative way for check again puzzle is one solution
 func solve2(u string) (string, bool) {
 	// construct an dlx object with 324 constraint columns.
 	// other than the number 324, this is not specific to sudoku.

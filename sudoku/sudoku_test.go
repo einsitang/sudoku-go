@@ -49,11 +49,11 @@ func TestDLXSolveSpeed(t *testing.T) {
 	t.Logf("generate time :%v'ms ", endTime.Sub(beginTime).Milliseconds())
 
 	beginTime = time.Now()
-	_sudoku, err := core.Solve(hellPuzzle, &core.SudokuOption{IsOneSolutionMode: true})
+	_sudoku, err := core.Solve(hellPuzzle, &core.SudokuOption{})
 	endTime = time.Now()
 	t.Logf("err : %v", err)
 	t.Logf("solution : %v", _sudoku.Solution())
-	t.Logf("dfs total time : %v'ns [dfs with strict]", endTime.Sub(beginTime).Nanoseconds())
+	t.Logf("dfs total time : %v'ns [dfs]", endTime.Sub(beginTime).Nanoseconds())
 
 	beginTime = time.Now()
 	_sudoku, err = core.Solve(hellPuzzle, &core.SudokuOption{DLXMode: true})
@@ -61,6 +61,20 @@ func TestDLXSolveSpeed(t *testing.T) {
 	t.Logf("err : %v", err)
 	t.Logf("solution : %v", _sudoku.Solution())
 	t.Logf("dlx total time : %v'ns [dlx]", endTime.Sub(beginTime).Nanoseconds())
+
+	beginTime = time.Now()
+	_sudoku, err = core.Solve(hellPuzzle, &core.SudokuOption{IsOneSolutionMode: true})
+	endTime = time.Now()
+	t.Logf("err : %v", err)
+	t.Logf("solution : %v", _sudoku.Solution())
+	t.Logf("dfs total time : %v'ns [dfs with strict]", endTime.Sub(beginTime).Nanoseconds())
+
+	beginTime = time.Now()
+	_sudoku, err = Solve(hellPuzzle, WithStrict())
+	endTime = time.Now()
+	t.Logf("err : %v", err)
+	t.Logf("solution : %v", _sudoku.Solution())
+	t.Logf("dlx total time : %v'ns [auto with strict]", endTime.Sub(beginTime).Nanoseconds())
 
 	beginTime = time.Now()
 	solutionStr, solved := core.DLXStrictSolve(hellPuzzle)

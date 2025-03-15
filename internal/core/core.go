@@ -20,14 +20,39 @@ func Solve(puzzle [81]int8, option *SudokuOption) (Sudoku, error) {
 	if option.DLXMode {
 		err = _sudoku.DLXInit(puzzle)
 	} else {
-		err = _sudoku.Init(puzzle)
+
+		// automatically adopt the optimal calculation method.
+		highPuzzleDifficulty := func(puzzle []int8) bool {
+			count := 0
+			for _, _p := range puzzle {
+				if _p <= 0 || _p > 9 {
+					count++
+				}
+			}
+			return count >= CONST_EXPERT_HOLES
+		}(puzzle[:])
+
+		if highPuzzleDifficulty {
+			err = _sudoku.DLXInit(puzzle)
+		} else {
+			err = _sudoku.Init(puzzle)
+		}
 	}
 	return _sudoku, err
 }
 
 type SudokuOption struct {
+
+	// Strictly stipulate that the puzzle must have a unique solution.
 	IsOneSolutionMode bool
-	DLXMode           bool
+
+	// There is no need to specifically establish the DLX mode.
+	// After testing, the DLX mode only works effectively in solving Sudoku puzzles at the expert level.
+	// Otherwise, it is not as good as the ordinary DFS.
+	// Sudoku will calculate the difficulty of the puzzle and automatically select which algorithm to use for calculation.
+	//
+	// Deprecated: There is no need to specifically establish the DLX mode.
+	DLXMode bool
 }
 
 type sudoku struct {
@@ -65,7 +90,14 @@ func (_sudoku *sudoku) DLXInit(puzzle [81]int8) error {
 	// fmt.Println("use [dlx] caculate it : this is not ensure one-solution sudoku")
 	_sudoku.beginTime = time.Now()
 	_sudoku.puzzle = puzzle
-	solutionStr, solved := DLXSolve(puzzle)
+	var solutionStr string
+	var solved bool
+	if _sudoku.option.IsOneSolutionMode {
+		solutionStr, solved = DLXStrictSolve(puzzle)
+	} else {
+		solutionStr, solved = DLXSolve(puzzle)
+	}
+
 	if !solved {
 		return errors.New("puzzle can not be resolve")
 	}
