@@ -9,9 +9,9 @@ const (
 	CONST_EASY_HOLES   = 40
 	CONST_MEDIUM_HOLES = 45
 	CONST_HARD_HOLES   = 50
-	CONST_EXPERT_HOLES = 56
+	CONST_EXPERT_HOLES = 55
 	// ⚠️ hell is really hard and very consumptive performance ⚠️
-	CONST_HELL_HOLES = 60
+	CONST_HELL_HOLES = 59
 )
 
 func Location(index int) (x, y, zone int) {

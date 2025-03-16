@@ -25,6 +25,12 @@ const (
 
 	// EMPTY puzzle empty value
 	EMPTY = -1
+
+	// 基于相同的数独最大尝试挖洞次数
+	MAX_DIGHOLE_PROCESS_TIMES = 2
+
+	// 挖洞失败后难度降低步长
+	DIG_HOLE_REDUCE_STEP = 1
 )
 
 var (
@@ -38,7 +44,7 @@ func Generate(level int) (_sudoku core.Sudoku, err error) {
 	// concurrent generate
 	// if level below medium , just use one concurrent that will work fine
 	n := runtime.NumCPU()
-	n = n>>2 + 1
+	n = n>>1 + 1
 	if n < MIN_CONCURRENCY {
 		n = MIN_CONCURRENCY
 	}
@@ -89,9 +95,9 @@ func generate(taskSerial int, sudokuCh chan<- core.Sudoku, signal chan int, digH
 
 	if jobCount >= maxJobCount {
 		// reduce the difficulty
-		oldDigHoleTotal := digHoleTotal
-		digHoleTotal -= 2
-		fmt.Printf("%d :: generate times : %d / %d(MAX) reduce the difficulty %d -> %d \n", taskSerial, jobCount, maxJobCount, oldDigHoleTotal, digHoleTotal)
+		// oldDigHoleTotal := digHoleTotal
+		digHoleTotal -= DIG_HOLE_REDUCE_STEP
+		// fmt.Printf("%d :: generate times : %d / %d(MAX) reduce the difficulty %d -> %d \n", taskSerial, jobCount, maxJobCount, oldDigHoleTotal, digHoleTotal)
 		jobCount = 1
 	}
 
@@ -103,7 +109,7 @@ func generate(taskSerial int, sudokuCh chan<- core.Sudoku, signal chan int, digH
 	// because I wan't test each dig hole logic may faster
 	// but only thing useful logic is try more times , now is twice => maxDigHoleProcessTimes := 2
 	var resultSudoku *core.Sudoku
-	maxDigHoleProcessTimes := 2
+	maxDigHoleProcessTimes := MAX_DIGHOLE_PROCESS_TIMES
 	for resultSudoku == nil && maxDigHoleProcessTimes > 0 {
 		resultSudoku = digHoleProcess(basicSudoku, digHoleTotal)
 		maxDigHoleProcessTimes--
@@ -119,6 +125,7 @@ func generate(taskSerial int, sudokuCh chan<- core.Sudoku, signal chan int, digH
 		return
 	}
 
+	fmt.Printf("The actual number of holes dug : %d \n", digHoleTotal)
 	*done = true
 	doneAndCloseChannel(resultSudoku, signal, sudokuCh)
 
@@ -202,10 +209,12 @@ func randCandidateHoles() []int {
 	}
 	// make sure each zone must have one cell to fixed
 	// need calculate random index on each zone , and sort them
-	rand.Seed(time.Now().UnixNano())
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	// rand.Seed(time.Now().UnixNano()) // rand.Seed has been deprecated since Go 1.20
 	fixedPositionByZones := [9]int{0, 1, 2, 3, 4, 5, 6, 7, 8}
 	for i, zone := range fixedPositionByZones {
-		x := rand.Intn(9)
+		// x := rand.Intn(9) // rand.Seed has been deprecated since Go 1.20
+		x := r.Intn(9)
 		_, _, index := core.LocationAtZone(zone, x)
 		fixedPositionByZones[i] = index
 	}

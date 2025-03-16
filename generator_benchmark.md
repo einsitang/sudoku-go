@@ -4,7 +4,7 @@ command : `go test -bench=. ./internal/generator/* -benchtime=5s`
 
 mix only above level MEDIUM use concurrency `current`
 
-```
+```log
 goos: darwin
 goarch: amd64
 cpu: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz
@@ -81,4 +81,3 @@ BenchmarkGenerateLevelEasy-8                7908            790503 ns/op
 PASS
 ok      command-line-arguments  27.686s
 ```
-
