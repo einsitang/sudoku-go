@@ -1,29 +1,43 @@
-# copyright (c) 2025 einsitang. All Rights Reserve.
 #!/bin/bash
 
-platform="ios"
-arch="arm64"
+# 编译真机 (arm64)
+export GOOS=ios
+export GOARCH=arm64
+export CGO_ENABLED=1
+export CC=$(xcrun --sdk iphoneos --find clang)
+export CGO_CFLAGS="-arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path) -fembed-bitcode"
+# export CGO_LDFLAGS="-arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path) -Wl,-install_name,@rpath/libexample.dylib"
+go build -buildmode=c-archive -o build/cgo/ios/libsudoku_arm64.a ./cgo
 
-export GOOS="ios"
-export GOARCH="arm64"
-export CGO_ENABLED="1"
-export CGO_CFLAGS="-fembed-bitcode"
+# 编译模拟器 (x86_64 / arm64)
+export GOARCH=amd64
+# export GOARCH=arm64
+export CGO_ENABLED=1
+export CC=$(xcrun --sdk iphonesimulator --find clang)
+export CGO_CFLAGS="-arch x86_64 -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path)"
+# export CGO_LDFLAGS="-arch arm64 -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path) -Wl,-install_name,@rpath/libexample.dylib"
+go build -buildmode=c-archive -o build/cgo/ios/libsudoku_simulator_$GOARCH.a ./cgo
 
-# SDK 
-# xcodebuild -showsdks
+# 使用 xcodebuild 组合成xcframework
+# xcodebuild -create-xcframework -library build/cgo/ios/libsudoku_x86_64.a -library build/cgo/ios/libsudoku_arm64.a -output ./build/cgo/ios/libsudoku.xcframework
 
-# ios arm
-export CC=$GOROOT/misc/ios/clangwrap.sh GOOS=$GOOS GOARCH=$GOARCH SDK=iphoneos PLATFORM=ios -v
-go build -ldflags="-s -w" -buildmode=c-archive -o build/cgo/$platform/libsudoku_$arch.a ./cgo
+# 使用lipo组合静态库 (相同平台不通架构：same-platform: ios-simulator, combo arch: x86_64, arm64)
+# lipo -create libsudoku_simulator_amd64.a libsudoku_simulator_arm64.a -output libsudoku_simulator_universal.a
 
-# x86 模拟器
-export CC=$GOROOT/misc/ios/clangwrap.sh GOOS=$GOOS GOARCH=amd64 SDK=iphonesimulator PLATFORM=ios-simulator
-go build -ldflags="-s -w" -buildmode=c-archive -o build/cgo/$platform/libsudoku_x86_64.a ./cgo
+# 查看
+# lipo -info libsudoku_simulator_universal.a
 
-# lipo -create build/cgo/ios/libsudoku_arm64.a build/cgo/ios/libsudoku_x86_64.a -output build/cgo/libsudoku_ios.a
+# final build
+# 使用 xcodebuild 将不同平台(ios-simulator,ios) 合并成 xcframework
+# xcodebuild -create-xcframework -library libsudoku_arm64.a -library libsudoku_simulator_universal.a -output libsudoku.xcframework
 
-#组合
-# lipo -create out_ios/libevparser.a out_x86/libevparser.a -output libevparser.a
+# 以下静态库转动态库方式 <- 未验证
+# !! Attention !! 
+# iOS平台下对于 动态库 打包比较严格，需要签名，如务必要，到此为止
 
-# 查看便衣结果
-# lipo -info libevparser.a
+# 解压静态库，得出一堆 *.o 文件
+# ar -x libsudoku.a 
+# 重新组合成动态库
+# xcrun -sdk iphoneos clang -arch arm64 -fpic -shared -Wl,-all_load *.o -framework CoreFoundation -o libsudoku.dylib -isysroot $(xcrun --sdk iphoneos --show-sdk-path)
+# 验证
+# file libsudoku.dylib -> libsudoku.dylib: Mach-O 64-bit dynamically linked shared library arm64
