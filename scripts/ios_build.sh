@@ -5,7 +5,7 @@ export GOOS=ios
 export GOARCH=arm64
 export CGO_ENABLED=1
 export CC=$(xcrun --sdk iphoneos --find clang)
-export CGO_CFLAGS="-arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path) -fembed-bitcode"
+export CGO_CFLAGS="-DLIBSUDOKU_VERSION=\"1.0.0\" -arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path) -fembed-bitcode"
 # export CGO_LDFLAGS="-arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path) -Wl,-install_name,@rpath/libexample.dylib"
 go build -buildmode=c-archive -o build/cgo/ios/libsudoku_arm64.a ./cgo
 
@@ -14,12 +14,12 @@ export GOARCH=amd64
 # export GOARCH=arm64
 export CGO_ENABLED=1
 export CC=$(xcrun --sdk iphonesimulator --find clang)
-export CGO_CFLAGS="-arch x86_64 -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path)"
+export CGO_CFLAGS="-DLIBSUDOKU_VERSION=\"1.0.0\" -arch x86_64 -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path)"
 # export CGO_LDFLAGS="-arch arm64 -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path) -Wl,-install_name,@rpath/libexample.dylib"
 go build -buildmode=c-archive -o build/cgo/ios/libsudoku_simulator_$GOARCH.a ./cgo
 
 # 使用 xcodebuild 组合成xcframework
-# xcodebuild -create-xcframework -library build/cgo/ios/libsudoku_x86_64.a -library build/cgo/ios/libsudoku_arm64.a -output ./build/cgo/ios/libsudoku.xcframework
+# xcodebuild -create-xcframework -library build/cgo/ios/libsudoku_simulator_amd64.a -library build/cgo/ios/libsudoku_arm64.a -output ./build/cgo/ios/libsudoku.xcframework
 
 # 使用lipo组合静态库 (相同平台不通架构：same-platform: ios-simulator, combo arch: x86_64, arm64)
 # lipo -create libsudoku_simulator_amd64.a libsudoku_simulator_arm64.a -output libsudoku_simulator_universal.a

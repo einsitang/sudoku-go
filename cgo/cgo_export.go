@@ -1,9 +1,21 @@
 package main
 
-// #cgo CFLAGS: -g -Wall
-// #include <stdio.h>
-// #include <stdlib.h>
 /*
+#cgo CFLAGS: -I. -g -Wall
+#cgo LDFLAGS: -L. -llog
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifndef LIBSUDOKU_VERSION
+#define LIBSUDOKU_VERSION "0.0.0"
+#endif
+
+static const char* VERSION = LIBSUDOKU_VERSION;
+static const char* get_sudoku_version() {
+	return VERSION;
+}
+
+
 struct sudoku_channel {
  int err;
  signed char* matrix;
@@ -16,6 +28,11 @@ import (
 	"github.com/einsitang/sudoku-go/v2/internal/core"
 	"github.com/einsitang/sudoku-go/v2/sudoku"
 )
+
+//export Version
+func Version() *C.char {
+	return C.get_sudoku_version()
+}
 
 //export Generate
 func Generate(level C.int, output unsafe.Pointer) {
